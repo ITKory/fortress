@@ -1,0 +1,264 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Updated color scheme to beige and gold tones for restaurant aesthetic */
+  --background: oklch(0.98 0.01 85);
+  --foreground: oklch(0.25 0.02 75);
+  --card: oklch(0.96 0.015 80);
+  --card-foreground: oklch(0.25 0.02 75);
+  --popover: oklch(0.98 0.01 85);
+  --popover-foreground: oklch(0.25 0.02 75);
+  --primary: oklch(0.55 0.12 75);
+  --primary-foreground: oklch(0.98 0.01 85);
+  --secondary: oklch(0.92 0.02 80);
+  --secondary-foreground: oklch(0.25 0.02 75);
+  --muted: oklch(0.94 0.015 82);
+  --muted-foreground: oklch(0.5 0.02 75);
+  --accent: oklch(0.65 0.15 70);
+  --accent-foreground: oklch(0.98 0.01 85);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.98 0.01 85);
+  --border: oklch(0.88 0.02 80);
+  --input: oklch(0.88 0.02 80);
+  --ring: oklch(0.55 0.12 75);
+  --chart-1: oklch(0.55 0.12 75);
+  --chart-2: oklch(0.65 0.15 70);
+  --chart-3: oklch(0.45 0.1 80);
+  --chart-4: oklch(0.7 0.18 65);
+  --chart-5: oklch(0.6 0.14 78);
+  --radius: 0.75rem;
+  --sidebar: oklch(0.98 0.01 85);
+  --sidebar-foreground: oklch(0.25 0.02 75);
+  --sidebar-primary: oklch(0.55 0.12 75);
+  --sidebar-primary-foreground: oklch(0.98 0.01 85);
+  --sidebar-accent: oklch(0.92 0.02 80);
+  --sidebar-accent-foreground: oklch(0.25 0.02 75);
+  --sidebar-border: oklch(0.88 0.02 80);
+  --sidebar-ring: oklch(0.55 0.12 75);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Improved arrow animations with smoother timing and better stroke-dasharray values */
+@keyframes draw-line {
+  from {
+    stroke-dashoffset: 80;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes draw-head {
+  from {
+    stroke-dashoffset: 20;
+    opacity: 0;
+  }
+  to {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+.arrow-line {
+  stroke-dasharray: 80;
+  stroke-dashoffset: 80;
+  animation: draw-line 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.arrow-head {
+  stroke-dasharray: 20;
+  stroke-dashoffset: 20;
+  opacity: 0;
+  animation: draw-head 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
+}
+
+/* ---------- Firefox ---------- */
+/* thin + цвет; в FF нет opacity-transition для скроллбаров, поэтому
+   делаем скрытие/показ через смену цвета при hover/focus-within */
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent; /* по умолчанию скрываем (transparent) */
+}
+
+/* при наведении/фокусе показываем тёмный ползунок */
+body:hover,
+body:focus-within {
+  scrollbar-color: var(--sb-thumb) transparent;
+}
+
+/* ---------- WebKit / Blink (Chrome, Safari, Edge) ---------- */
+/* Базовые размеры трека */
+*::-webkit-scrollbar {
+  width: var(--sb-width);
+  height: var(--sb-width);
+}
+
+/* Делать трек прозрачным (чтобы выглядел «плавающим») */
+*::-webkit-scrollbar-track {
+  background: transparent;
+  margin: var(--sb-track-padding);
+}
+
+/* Ползунок — по умолчанию невидим (opacity 0) */
+*::-webkit-scrollbar-thumb {
+  background: var(--sb-thumb);
+  border-radius: var(--sb-radius);
+  border: 2px solid var(--sb-border);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.08) inset;
+  transition: opacity 220ms ease, background-color 160ms ease, transform 200ms ease;
+  opacity: 0;                /* скрыт по умолчанию */
+}
+
+/* Показываем при наведении на страницу (мышь) или когда внутри есть фокус (клавиатура) */
+body:hover *::-webkit-scrollbar-thumb,
+body:focus-within *::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+
+/* Hover/active state (мышь над самим ползунком) */
+*::-webkit-scrollbar-thumb:hover,
+*::-webkit-scrollbar-thumb:active {
+  background: var(--sb-thumb-hover);
+  transform: scale(1.03);
+}
+
+/* Опционально: слегка заметный трек при hover — делает контраст */
+body:hover *::-webkit-scrollbar-track {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.01));
+}
+
+/* ---------- Scrollable area helper (для контейнеров) ---------- */
+/* Если используешь scrollable блоки, добавь .scroll-area к ним,
+   тогда поведение будет таким же, но не будет зависеть от hover по body. */
+.scroll-area {
+  /* обязательно overflow: auto/scroll */
+  -webkit-overflow-scrolling: touch; /* плавный scroll на iOS */
+  scrollbar-width: thin;             /* firefox */
+  scrollbar-color: transparent transparent;
+}
+
+/* показываем скролл для конкретной области при hover/focus */
+.scroll-area:hover,
+.scroll-area:focus-within {
+  scrollbar-color: var(--sb-thumb) transparent;
+}
+.scroll-area::-webkit-scrollbar-thumb { opacity: 0; transition: opacity 220ms ease; }
+.scroll-area:hover::-webkit-scrollbar-thumb,
+.scroll-area:focus-within::-webkit-scrollbar-thumb { opacity: 1; }
+
+/* ---------- Accessibility / reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *::-webkit-scrollbar-thumb {
+    transition: none;
+    transform: none !important;
+    cursor: none !important;
+  }
+  html { scroll-behavior: auto; }
+}
+
+/* ---------- Small devices: ещё тоньше (опционально) ---------- */
+@media (max-width: 640px) {
+  :root { --sb-width: 6px; }
+}
+
+/* ---------- Notes ----------
+ - В современных macOS/Touch-устройствах нативный scrollbar часто overlay/auto-hidden —
+   эти стили не обязательно будут видны на всех платформах одинаково.
+ - Некоторые браузеры (особенно старые) игнорируют ::-webkit-scrollbar. Firefox использует scrollbar-color.
+ - Для гарантированного эффекта на всех платформах можно показать тонкую кастомную «полосу»
+   внутри своих scrollable контейнеров и реализовать thumb drag через JS, но это уже сложнее.
+-------------------------------- */
+
+
+
+
