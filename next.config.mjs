@@ -17,7 +17,6 @@ const nextConfig = {
       { protocol: "https", hostname: "proxy.storage.yandex.net" },
       { protocol: "https", hostname: "*cloud-api.yandex.net" },
     ],
-
   },
 }
 
