@@ -8,9 +8,11 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
-    domains: ["avatars.mds.yandex.net", "downloader.disk.yandex.ru"],
+    domains: ["avatars.mds.yandex.net", "downloader.disk.yandex.ru", "disk.yandex.ru"],
     remotePatterns: [
       { protocol: "https", hostname: "**.yandex.net" },
+      { protocol: "https", hostname: "**.yandex.ru" },
+      { protocol: "https", hostname: "disk.yandex.ru" },
       { protocol: "https", hostname: "downloader.disk.yandex.ru" },
       { protocol: "https", hostname: "proxy.storage.yandex.net" },
       { protocol: "https", hostname: "*cloud-api.yandex.net" },
