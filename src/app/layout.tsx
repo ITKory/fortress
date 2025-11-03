@@ -8,9 +8,6 @@ import ClientLayout from "./client-layout"
 import "./globals.css"
 import { Suspense } from "react"
 
-// (опционально) можно импортировать картинку как StaticImageData
-// import ogImage from "../public/images/og-image.jpg";
-
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
@@ -32,8 +29,7 @@ export const metadata: Metadata = {
     apple: "/logo.svg",
   },
 
-  // Open Graph / Social
-  openGraph: {
+   openGraph: {
     title: "Сеть Ресторанов | Башня",
     description: "Откройте для себя мир изысканной кухни в наших халяль ресторанах.",
     url: "https://stekloplast-engineering.ru",

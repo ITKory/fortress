@@ -1,327 +1,130 @@
-"use client";
+"use client"
 
-import React, { JSX, useEffect, useState, useRef } from "react";
-import { Button } from "@/src/components/ui/button";
-import { ParallaxScroll } from "@/src/components/parallax-scroll";
-import {Drawer, DrawerTrigger, DrawerContent, DrawerTitle, DrawerDescription} from "@/src/components/ui/drawer";
-import { ResponsiveContainer } from "recharts";
+import { type JSX, useEffect, useState } from "react"
+import { Button } from "@/src/components/ui/button"
+import { ParallaxScroll } from "@/src/components/parallax-scroll"
+import { Drawer, DrawerTrigger, DrawerContent, DrawerTitle, DrawerDescription } from "@/src/components/ui/drawer"
 
-const SHARE_LINK = process.env.NEXT_PUBLIC_MENU || "";
-
-// --- Типы ответа Yandex.Disk (упрощённо) ---
-type YandexListItem = {
-  name: string;
-  type: "file" | "dir";
-  path?: string;
-  media_type?: string;
-};
-type YandexListResponse = {
-  _embedded?: { items?: YandexListItem[] };
-};
-
-// --- Проверка расширений изображений ---
-const IMAGE_EXT_RE = /\.(jpe?g|png|webp|gif|avif|bmp|svg)$/i;
-
-const isImageFilename = (filename?: string | null) => {
-  if (!filename) return false;
-  return IMAGE_EXT_RE.test(filename);
-};
-
-// --- Кеширование в sessionStorage с TTL ---
-const CACHE_KEY = "yandex_public_images_cache_v1";
-const CACHE_TTL_MS = 1000 * 60 * 60 * 12; // 12 часов
+const CACHE_KEY = "yandex_menu_images_v2"
+const CACHE_TTL_MS = 1000 * 60 * 60 * 12 // 12 часов
 
 function readCache(): string[] | null {
   try {
-    const raw = sessionStorage.getItem(CACHE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
+    const raw = typeof window !== "undefined" ? localStorage.getItem(CACHE_KEY) : null
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
     if (Date.now() - parsed.t > CACHE_TTL_MS) {
-      sessionStorage.removeItem(CACHE_KEY);
-      return null;
+      localStorage.removeItem(CACHE_KEY)
+      return null
     }
-    return Array.isArray(parsed.v) ? parsed.v : null;
+    return Array.isArray(parsed.v) ? parsed.v : null
   } catch {
-    return null;
+    return null
   }
 }
+
 function writeCache(hrefs: string[]) {
   try {
-    sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), v: hrefs }));
+    if (typeof window !== "undefined") {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), v: hrefs }))
+    }
   } catch {}
 }
 
 export default function Menu(): JSX.Element {
-  const prefetchTimerRef = useRef<number | null>(null);
+  const [images, setImages] = useState<string[]>([])
+  const [loading, setLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string | null>(null)
+  const [isOpen, setIsOpen] = useState<boolean>(false)
 
-  const [images, setImages] = useState<string[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const abortRef = useRef<AbortController | null>(null);
+  useEffect(() => {
+    if (!isOpen) return
 
-  async function fetchImagesFromYandexSignal(signal?: AbortSignal) {
-    setLoading(true);
-    setError(null);
-    try {
-      const listUrl = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${encodeURIComponent(
-          SHARE_LINK
-      )}&limit=100`;
-
-      const listResp = await fetch(listUrl, { signal });
-      if (!listResp.ok) console.log(`List request failed: ${listResp.status}`);
-
-      const listJson = (await listResp.json()) as YandexListResponse;
-      const items = listJson._embedded?.items ?? [];
-      const imageItems = items.filter((it) => it.type === "file" && isImageFilename(it.name ?? it.path));
-      if (imageItems.length === 0) {
-        setImages([]);
-        setLoading(false);
-        return [];
-      }
-
-      const batchSize = 6;
-      const hrefs: string[] = [];
-      for (let i = 0; i < imageItems.length; i += batchSize) {
-        const batch = imageItems.slice(i, i + batchSize);
-        const batchPromises = batch.map(async (it) => {
-          const pathForApi = it.path ?? it.name;
-          const downloadUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${encodeURIComponent(
-              SHARE_LINK
-          )}&path=${encodeURIComponent(pathForApi ?? "")}`;
-
-          try {
-            const dlResp = await fetch(downloadUrl, { signal });
-            if (!dlResp.ok) return null;
-            const dlJson = await dlResp.json();
-            return typeof dlJson.href === "string" ? dlJson.href : null;
-          } catch (e) {
-            if ((e as any)?.name === "AbortError") throw e;
-            return null;
-          }
-        });
-
-        const settled = await Promise.allSettled(batchPromises);
-        settled.forEach((r) => {
-          if (r.status === "fulfilled" && r.value) hrefs.push(r.value);
-        });
-
-        if (signal?.aborted) console.log("Aborted", "AbortError");
-      }
-
-      // Возвращаем hrefs, но НЕ сразу пушим в state если это префетч (нижe мы решаем)
-      return hrefs;
-    } catch (err: any) {
-      if (err?.name === "AbortError") return null;
-      console.error(err);
-      setError(err?.message ?? "Unknown error");
-      return null;
-    } finally {
-      setLoading(false);
+    const cached = readCache()
+    if (cached && cached.length > 0) {
+      setImages(cached)
+      return
     }
+
+    const controller = new AbortController()
+    setLoading(true)
+    setError(null)
+
+    fetch("/api/menu", { signal: controller.signal })
+        .then(async (resp) => {
+          if (!resp.ok) throw new Error(`API error ${resp.status}`)
+          const data = await resp.json()
+          if (!Array.isArray(data)) throw new Error("Invalid API response")
+          setImages(data)
+          writeCache(data)
+        })
+        .catch((err) => {
+          if (err.name !== "AbortError") {
+            console.error(err)
+            setError("Не удалось загрузить изображения")
+          }
+        })
+        .finally(() => {
+          setLoading(false)
+        })
+
+    return () => controller.abort()
+  }, [isOpen])
+
+  const handleMouseEnter = () => {
+    const cached = readCache()
+    if (cached && cached.length > 0) return
+
+    fetch("/api/menu/", { method: "HEAD" }).catch(() => {})
   }
 
-  useEffect(() => {
-    // когда Drawer открыли — загружаем (если в кеше нет)
-    if (!isOpen) return;
-
-    // если есть кеш — используем его (мгновенно)
-    const cached = readCache();
-    if (cached && cached.length > 0) {
-      setImages(cached);
-      setLoading(false);
-      setError(null);
-      return;
-    }
-
-    const controller = new AbortController();
-    abortRef.current = controller;
-    const signal = controller.signal;
-
-    async function fetchImagesFromYandex() {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const listUrl = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${encodeURIComponent(
-            SHARE_LINK
-        )}&limit=100`;
-
-        const listResp = await fetch(listUrl, { signal });
-        const listJson = (await listResp.json()) as YandexListResponse;
-        const items = listJson._embedded?.items ?? [];
-
-        const imageItems = items.filter(
-            (it) => it.type === "file" && isImageFilename(it.name ?? it.path)
-        );
-
-        if (imageItems.length === 0) {
-          setImages([]);
-          setLoading(false);
-          return;
-        }
-
-        // Получаем download href по батчам — чтобы не открывать слишком много одновременных соединений.
-        const batchSize = 6;
-        const hrefs: string[] = [];
-
-        for (let i = 0; i < imageItems.length; i += batchSize) {
-          const batch = imageItems.slice(i, i + batchSize);
-          const batchPromises = batch.map(async (it) => {
-            const pathForApi = it.path ?? it.name;
-            const downloadUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${encodeURIComponent(
-                SHARE_LINK
-            )}&path=${encodeURIComponent(pathForApi ?? "")}`;
-
-            try {
-              const dlResp = await fetch(downloadUrl, { signal });
-              if (!dlResp.ok) {
-                console.warn(`download request failed for ${it.name}: ${dlResp.status}`);
-                return null;
-              }
-              const dlJson = await dlResp.json();
-              return typeof dlJson.href === "string" ? dlJson.href : null;
-            } catch (e) {
-              if ((e as any)?.name === "AbortError") {
-                // прерывание — пробросим вверх
-                throw e;
-              }
-              console.warn("Failed to get download href for", it.name, e);
-              return null;
-            }
-          });
-
-          // ждём завершения батча (частичные ошибки обработаем дальше)
-          const settled = await Promise.allSettled(batchPromises);
-          settled.forEach((r) => {
-            if (r.status === "fulfilled" && r.value) hrefs.push(r.value);
-          });
-
-          // если сигнал отменён — выйдем
-          if (signal.aborted) console.log("Aborted", "AbortError");
-
-        }
-
-        // Сохраняем в state и кеш
-        setImages(hrefs);
-        writeCache(hrefs);
-        setLoading(false);
-      } catch (err: any) {
-        if (err?.name === "AbortError") {
-          // отмена — игнорируем
-          return;
-        }
-        console.error(err);
-        setError(err?.message ?? "Unknown error");
-        setLoading(false);
-      }
-    }
-
-    fetchImagesFromYandex();
-
-    return () => {
-      controller.abort();
-      abortRef.current = null;
-    };
-  }, [isOpen]);
-
-  // Отменяем активные запросы при закрытии Drawer (чтобы не гонять лишние запросы)
-  useEffect(() => {
-    if (!isOpen) return;
-    const controller = new AbortController();
-    abortRef.current = controller;
-
-    (async () => {
-      // берем из кеша если есть
-      const cached = readCache();
-      if (cached && cached.length > 0) {
-        setImages(cached);
-        setLoading(false);
-        setError(null);
-        return;
-      }
-
-      const hrefs = await fetchImagesFromYandexSignal(controller.signal);
-      if (hrefs && Array.isArray(hrefs)) {
-        setImages(hrefs);
-        writeCache(hrefs);
-      }
-    })();
-
-    return () => {
-      controller.abort();
-      abortRef.current = null;
-    };
-  }, [isOpen]);
-
-  const prefetchImages = () => {
-    // если в кеше есть — ничего не делаем
-    const cached = readCache();
-    if (cached && cached.length > 0) return;
-
-    // если уже есть активный контроллер — не запускаем новый
-    if (abortRef.current) return;
-
-    // debounce: запуск через 200ms чтобы избежать лишних запросов при коротком наведении
-    if (prefetchTimerRef.current) window.clearTimeout(prefetchTimerRef.current);
-    prefetchTimerRef.current = window.setTimeout(() => {
-      const controller = new AbortController();
-      abortRef.current = controller;
-      fetchImagesFromYandexSignal(controller.signal).then((hrefs) => {
-        if (hrefs && hrefs.length > 0) {
-          // сохраняем в cache, но не обязательно показываем до открытия
-          writeCache(hrefs);
-        }
-        // не записываем в state — это префетч
-        abortRef.current = null;
-      });
-    }, 180);
-  };
-
   return (
-      <section id="menu" className="py-12 md:py-24 px-4 bg-gradient-to-t from-card/90 to-card/10 ">
+      <section id="menu" className="py-12 md:py-24 px-4 bg-gradient-to-t from-card/90 to-card/10">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="font-serif text-4xl md:text-6xl font-light mb-6 text-balance">Изысканное меню</h2>
           <p className="text-lg md:text-xl text-muted-foreground mb-12 text-pretty leading-relaxed max-w-2xl mx-auto">
-            Наши шеф-повара создают кулинарные шедевры, сочетая традиционные рецепты с современными
-            техниками
+            Наши шеф-повара создают кулинарные шедевры, сочетая традиционные рецепты с современными техниками
           </p>
           <div className="relative inline-block">
-            {/* Управляем открытием Drawer чтобы триггерить загрузку */}
-            <Drawer
-                open={isOpen} onOpenChange={(v: boolean) => setIsOpen(v)}>
+            <Drawer open={isOpen} onOpenChange={setIsOpen}>
               <DrawerTrigger asChild>
                 <Button
                     size="lg"
                     variant="outline"
                     className="border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8 py-6 text-lg rounded-full transition-all duration-300 bg-transparent"
-                    onMouseEnter={() => { prefetchImages(); }}
-                 >
+                    onMouseEnter={handleMouseEnter}
+                >
                   Посмотреть меню
                 </Button>
               </DrawerTrigger>
 
               <DrawerContent>
-                <DrawerTitle/>
-                <DrawerDescription/>
-                <div className="left-0 right-0 w-full ">
-                  <div className=" h-[620px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <div className="flex items-center justify-center ">
-                        <div className="flex-1 text-center">
-                          <div>
-                            {loading && <div>Загрузка изображений...</div>}
-                            {error && <div className="text-destructive">Ошибка: {error}.</div>}
-                            {!loading && !error && images.length === 0 && (
-                                <div>В папке нет изображений или они недоступны.</div>
-                            )}
-                            {!loading && !error && images.length > 0 && (
-                                <ParallaxScroll images={images} />
-                            )}
+                <DrawerTitle className="sr-only">Меню ресторана</DrawerTitle>
+                <DrawerDescription className="sr-only">Галерея блюд нашего меню</DrawerDescription>
+                <div className="w-full">
+                  <div className="h-[620px]">
+                    {loading && (
+                        <div className="flex items-center justify-center h-full">
+                          <div className="text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                            <p className="text-muted-foreground">Загрузка меню...</p>
                           </div>
                         </div>
-                      </div>
-                    </ResponsiveContainer>
+                    )}
+                    {error && (
+                        <div className="flex items-center justify-center h-full">
+                          <div className="text-center text-destructive">
+                            <p className="text-lg font-medium mb-2">Ошибка загрузки</p>
+                            <p className="text-sm">{error}</p>
+                          </div>
+                        </div>
+                    )}
+                    {!loading && !error && images.length === 0 && (
+                        <div className="flex items-center justify-center h-full">
+                          <p className="text-muted-foreground">Изображения не найдены</p>
+                        </div>
+                    )}
+                    {!loading && !error && images.length > 0 && <ParallaxScroll images={images} />}
                   </div>
                 </div>
               </DrawerContent>
@@ -329,5 +132,5 @@ export default function Menu(): JSX.Element {
           </div>
         </div>
       </section>
-  );
+  )
 }

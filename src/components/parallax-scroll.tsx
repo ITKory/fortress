@@ -1,140 +1,110 @@
-"use client";
+"use client"
 
-import React, { useRef, useMemo, useState, useEffect } from "react";
-import Image from "next/image";
-import { motion, useScroll, useTransform } from "motion/react";
-import { cn } from "@/src/lib/utils";
+import type React from "react"
+import { useRef, useMemo, useState, useEffect } from "react"
+import Image from "next/image"
+import { motion, useScroll, useTransform } from "motion/react"
+import {cn} from "@/src/lib/utils";
+type Props = {
+    images: string[]
+    className?: string
+}
 
-type LazyImageProps = {
-    src: string;
-    alt?: string;
-    width?: number;
-    height?: number;
-    sizes?: string;
-    className?: string;
-    placeholderSrc?: string;
-    priority?: boolean;
-};
+const LazyImage: React.FC<{
+    src: string
+    alt: string
+    className?: string
+    aspectRatio?: "portrait" | "landscape" | "square"
+}> = ({ src, alt, className, aspectRatio = "square" }) => {
+    const [isLoaded, setIsLoaded] = useState(false)
+    const [error, setError] = useState(false)
 
-// Простой LazyImage: показывает <Image> только когда элемент видим (IntersectionObserver)
-const LazyImage: React.FC<LazyImageProps> = ({ src, alt, width, height, sizes, className, priority }) => {
-    const ref = useRef<HTMLDivElement | null>(null);
-    const [inView, setInView] = useState(false);
-
-    useEffect(() => {
-        const el = ref.current;
-        if (!el) return;
-        const io = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        setInView(true);
-                        io.disconnect();
-                    }
-                });
-            },
-            {
-                root: null,
-                rootMargin: "400px", // большой rootMargin — подгружаем заранее при близком скролле
-                threshold: 0.01,
-            }
-        );
-        io.observe(el);
-        return () => io.disconnect();
-    }, [ref]);
+    const heightClass = {
+        portrait: "h-[500px]",
+        landscape: "h-[300px]",
+        square: "h-[400px]",
+    }[aspectRatio]
 
     return (
-        <div ref={ref} className={className}>
-            {inView ? (
-                <Image
-                    src={src}
-                    alt={alt ?? ""}
-                    width={width}
-                    height={height}
-                    sizes={sizes}
-                    loading={priority ? "eager" : "lazy"}
-                    decoding="async"
-                    className="h-full w-full object-cover object-left-top"
-                />
+        <div className={cn("relative w-full overflow-hidden", heightClass, className)}>
+            {!error ? (
+                <>
+                    {!isLoaded && <div className="absolute inset-0 bg-muted animate-pulse" />}
+                    <Image
+                        src={src || "/placeholder.svg"}
+                        alt={alt}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className={cn("object-contain transition-opacity duration-300 ", isLoaded ? "opacity-100" : "opacity-0")}
+                        onLoad={() => setIsLoaded(true)}
+                        onError={() => setError(true)}
+                        loading="lazy"
+                    />
+                </>
             ) : (
-                // простой placeholder (пустой блок) — можно заменить на skeleton/blur
-                <div className="h-full w-full bg-gray-100 animate-pulse" />
+                <div className="absolute inset-0 bg-muted flex items-center justify-center text-muted-foreground text-sm">
+                    Не удалось загрузить
+                </div>
             )}
         </div>
-    );
-};
+    )
+}
 
+const useImageAspectRatio = (src: string): "portrait" | "landscape" | "square" => {
+    const [aspectRatio, setAspectRatio] = useState<"portrait" | "landscape" | "square">("square")
 
-
-type Props = {
-    images: string[];
-    className?: string;
-};
-
-/**
- * ImageWithFallback
- * Обёртка для next/image: переключает src на локальный fallback при ошибке загрузки.
- * - Требует, чтобы /public/images/fallback.png существовал
- * - Использует loading="lazy" и decoding="async"
- */
-const ImageWithFallback: React.FC<
-    React.ComponentProps<typeof Image> & { fallbackSrc?: string }
-> = ({ src, alt, fallbackSrc = "/images/fallback.png", ...rest }) => {
-    const [currentSrc, setCurrentSrc] = useState<string | typeof src>(String(src));
-
-    // если src изменился извне — обновим
     useEffect(() => {
-        setCurrentSrc(String(src));
-    }, [src]);
+        const img = new window.Image()
+        img.src = src
+        img.onload = () => {
+            const ratio = img.width / img.height
+            if (ratio < 0.85) {
+                setAspectRatio("portrait")
+            } else if (ratio > 1.3) {
+                setAspectRatio("landscape")
+            } else {
+                setAspectRatio("square")
+            }
+        }
+    }, [src])
 
-    return (
-        <LazyImage
-            src={currentSrc}
-            alt={alt ?? ""}
-            // lazy by default (unless priority=true)
-            loading={rest["priority"] ? "eager" : "lazy"}
-            decoding="async"
-            onError={() => {
-                // переключаемся на локальный плейсхолдер
-                setCurrentSrc(fallbackSrc);
-            }}
-            {...(rest as any)}
-        />
-    );
-};
+    return aspectRatio
+}
+
+const SmartImage: React.FC<{ src: string; alt: string; index: number }> = ({ src, alt }) => {
+    const aspectRatio = useImageAspectRatio(src)
+    return <LazyImage src={src} alt={alt} aspectRatio={aspectRatio} />
+}
 
 export const ParallaxScroll: React.FC<Props> = ({ images, className }) => {
-    // реф для скроллируемого контейнера
-    const gridRef = useRef<HTMLDivElement | null>(null);
+    const gridRef = useRef<HTMLDivElement | null>(null)
 
     const { scrollYProgress } = useScroll({
         container: gridRef,
         offset: ["start start", "end start"],
-    });
+    })
 
-    const translateFirst = useTransform(scrollYProgress, [0, 1], [0, -200]);
-    const translateSecond = useTransform(scrollYProgress, [0, 1], [0, 200]);
-    const translateThird = useTransform(scrollYProgress, [0, 1], [0, -200]);
+    const translateFirst = useTransform(scrollYProgress, [0, 1], [0, -150])
+    const translateSecond = useTransform(scrollYProgress, [0, 1], [0, 150])
+    const translateThird = useTransform(scrollYProgress, [0, 1], [0, -150])
 
-    // мемоизируем разбиение на 3 части, чтобы не пересчитывать каждый рендер
     const [firstPart, secondPart, thirdPart] = useMemo(() => {
-        const third = Math.ceil(images.length / 3) || 0;
-        const firstPart = images.slice(0, third);
-        const secondPart = images.slice(third, 2 * third);
-        const thirdPart = images.slice(2 * third);
-        return [firstPart, secondPart, thirdPart];
-    }, [images]);
+        const third = Math.ceil(images.length / 3) || 0
+        const firstPart = images.slice(0, third)
+        const secondPart = images.slice(third, 2 * third)
+        const thirdPart = images.slice(2 * third)
+        return [firstPart, secondPart, thirdPart]
+    }, [images])
 
     const makeAlt = (src: string, idx: number) => {
         try {
-            const u = new URL(src);
-            const name = u.pathname.split("/").pop() ?? `image-${idx}`;
-            // простая декодировка имени файла
-            return decodeURIComponent(name);
+            const u = new URL(src)
+            const name = u.pathname.split("/").pop() ?? `image-${idx}`
+            return decodeURIComponent(name)
         } catch {
-            return `image-${idx}`;
+            return `image-${idx}`
         }
-    };
+    }
 
     return (
         <div
@@ -143,64 +113,37 @@ export const ParallaxScroll: React.FC<Props> = ({ images, className }) => {
             role="region"
             aria-label="Галерея меню"
         >
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-start max-w-10xl mx-auto gap-10 py-40 px-10">
-                <div className="grid gap-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-start max-w-7xl mx-auto gap-6 py-20 px-4 md:px-10">
+                <div className="grid gap-6">
                     {firstPart.map((el, idx) => (
                         <motion.div style={{ y: translateFirst }} key={"grid-1-" + idx}>
-                            <div className="relative h-80 w-full rounded-lg overflow-hidden">
-                                {/* Используем ImageWithFallback.
-                    - width/height оставил чтобы next/image мог оптимизировать.
-                    - sizes важен для правильного srcset.
-                */}
-                                <ImageWithFallback
-                                    src={el}
-                                    alt={makeAlt(el, idx)}
-                                    width={800}
-                                    height={600}
-                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                    className="h-full w-full object-cover object-left-top"
-                                />
-                            </div>
+                            <SmartImage src={el} alt={makeAlt(el, idx)} index={idx} />
                         </motion.div>
                     ))}
                 </div>
 
-                <div className="grid gap-10">
+                <div className="grid gap-6">
                     {secondPart.map((el, idx) => (
                         <motion.div style={{ y: translateSecond }} key={"grid-2-" + idx}>
-                            <div className="relative h-[90px] md:h-96 w-full rounded-lg overflow-hidden">
-                                <ImageWithFallback
-                                    src={el}
-                                    alt={makeAlt(el, idx + firstPart.length)}
-                                    width={800}
-                                    height={600}
-                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                    className="h-full w-full object-cover object-left-top"
-                                />
-                            </div>
+                            <SmartImage src={el} alt={makeAlt(el, idx + firstPart.length)} index={idx + firstPart.length} />
                         </motion.div>
                     ))}
                 </div>
 
-                <div className="grid gap-10">
+                <div className="grid gap-6">
                     {thirdPart.map((el, idx) => (
                         <motion.div style={{ y: translateThird }} key={"grid-3-" + idx}>
-                            <div className="relative h-80 w-full rounded-lg overflow-hidden">
-                                <ImageWithFallback
-                                    src={el}
-                                    alt={makeAlt(el, idx + firstPart.length + secondPart.length)}
-                                    width={700}
-                                    height={500}
-                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                    className="h-full w-full object-cover object-left-top"
-                                />
-                            </div>
+                            <SmartImage
+                                src={el}
+                                alt={makeAlt(el, idx + firstPart.length + secondPart.length)}
+                                index={idx + firstPart.length + secondPart.length}
+                            />
                         </motion.div>
                     ))}
                 </div>
             </div>
         </div>
-    );
-};
+    )
+}
 
-export default ParallaxScroll;
+export default ParallaxScroll
