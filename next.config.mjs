@@ -7,7 +7,6 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
     domains: ["avatars.mds.yandex.net", "downloader.disk.yandex.ru", "disk.yandex.ru"],
     remotePatterns: [
       { protocol: "https", hostname: "**.yandex.net" },
