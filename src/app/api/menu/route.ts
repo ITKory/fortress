@@ -6,9 +6,6 @@ let cache: { t: number; v: string[] } = { t: 0, v: [] }
 const IMAGE_EXT_RE = /\.(jpe?g|png|webp|gif|avif|bmp|svg)$/i
 
 export async function GET() {
-    if (Date.now() - cache.t < CACHE_TTL && cache.v.length)
-        return NextResponse.json(cache.v)
-
     const SHARE_LINK = process.env.NEXT_PUBLIC_MENU || ""
 
     if (!SHARE_LINK || SHARE_LINK.trim().length === 0) {
@@ -25,13 +22,12 @@ export async function GET() {
     const trimmed = SHARE_LINK.trim()
 
     try {
-        const limit = 1000; // Увеличено для меньше пагинаций; можно до 5000 по отзывам
+        const limit = 1000;
         let offset = 0;
         let allItems: any[] = [];
         let rootPath = '';
         let total = 0;
 
-        // Первый запрос для получения total и rootPath
         let listUrl = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${encodeURIComponent(trimmed)}&limit=${limit}&offset=${offset}&fields=_embedded.items.name,_embedded.items.path,_embedded.items.type,_embedded.items.file`;
 
         console.time(`Fetch list at offset ${offset}`); // Лог для debug времени
@@ -57,13 +53,12 @@ export async function GET() {
         let items = listJson._embedded?.items ?? [];
         allItems.push(...items);
 
-        rootPath = listJson.path; // Берём rootPath
+        rootPath = listJson.path;
         total = listJson._embedded?.total ?? 0;
 
         offset += items.length;
 
-        // Цикл для остальных страниц
-        while (offset < total) {
+         while (offset < total) {
             listUrl = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${encodeURIComponent(trimmed)}&limit=${limit}&offset=${offset}&fields=_embedded.items.name,_embedded.items.path,_embedded.items.type,_embedded.items.file`;
 
             console.time(`Fetch list at offset ${offset}`);
