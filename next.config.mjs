@@ -4,6 +4,9 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  experimental: {
+    outputFileTracingRoot: undefined,
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
