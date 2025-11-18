@@ -1,132 +1,51 @@
+// pages/api/menu.ts или app/api/menu/route.ts
 import { NextResponse } from "next/server"
 
-const IMAGE_EXT_RE = /\.(jpe?g|png|webp|gif|avif|bmp|svg)$/i
-
 export async function GET() {
-    const SHARE_LINK = process.env.NEXT_PUBLIC_MENU || ""
+    const SHARE_LINK = process.env.NEXT_PUBLIC_MENU?.trim()
 
-    if (!SHARE_LINK || SHARE_LINK.trim().length === 0) {
-        return NextResponse.json(
-            {
-                error: "Не настроена переменная окружения",
-                message: "Добавьте MENU_PUBLIC_KEY или NEXT_PUBLIC_MENU в разделе Vars",
-                hint: "Укажите публичную ссылку на папку Яндекс.Диска (например: https://disk.yandex.ru/d/xxxxx)",
-            },
-            { status: 500 },
-        )
+    if (!SHARE_LINK) {
+        return NextResponse.json({ error: "Нет ссылки на меню" }, { status: 500 })
     }
 
-    const trimmed = SHARE_LINK.trim()
-
     try {
-        const limit = 1000;
-        let offset = 0;
-        let allItems: any[] = [];
-        let rootPath = '';
-        let total = 0;
+        // 1. Получаем все файлы из публичной папки
+        const listUrl = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${encodeURIComponent(
+            SHARE_LINK
+        )}&limit=1000&fields=_embedded.items.path,_embedded.items.type`
 
-        let listUrl = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${encodeURIComponent(trimmed)}&limit=${limit}&offset=${offset}&fields=_embedded.items.name,_embedded.items.path,_embedded.items.type,_embedded.items.file`;
+        const listResp = await fetch(listUrl, { next: { revalidate: 3600 } })
+        if (!listResp.ok) throw new Error(`Yandex list error ${listResp.status}`)
 
-         let listResp = await fetch(listUrl, {
-            next: { revalidate: 3600 },
-        });
+        const listJson = await listResp.json()
+        const items = listJson._embedded?.items ?? []
 
-        if (!listResp.ok) {
-            const errorText = await listResp.text()
-            return NextResponse.json(
-                {
-                    error: "Ошибка Яндекс.Диска",
-                    message: `Не удалось получить список файлов (статус ${listResp.status})`,
-                    hint: "Проверьте, что ссылка правильная и папка доступна публично",
-                    details: errorText,
-                },
-                { status: 502 },
-            )
-        }
+        const imageItems = items.filter(
+            (it: any) => it.type === "file" && /\.(jpe?g|png|webp|avif)$/i.test(it.name)
+        )
 
-        let listJson = await listResp.json();
-        let items = listJson._embedded?.items ?? [];
-        allItems.push(...items);
+        // 2. Для каждого изображения получаем ПРЯМУЮ вечную ссылку через preview
+        const promises = imageItems.map(async (item: any) => {
+            const path = encodeURIComponent(item.path)
+            const previewUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/preview?public_key=${encodeURIComponent(
+                SHARE_LINK
+            )}&path=${path}&size=XXXL`
 
-        rootPath = listJson.path;
-        total = listJson._embedded?.total ?? 0;
+            const r = await fetch(previewUrl, { next: { revalidate: 86400 } })
+            if (!r.ok) return null
+            const j = await r.json()
+            return j.href || null
+        })
 
-        offset += items.length;
-
-         while (offset < total) {
-            listUrl = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${encodeURIComponent(trimmed)}&limit=${limit}&offset=${offset}&fields=_embedded.items.name,_embedded.items.path,_embedded.items.type,_embedded.items.file`;
-
-            console.time(`Fetch list at offset ${offset}`);
-            listResp = await fetch(listUrl, {
-                next: { revalidate: 3600 },
-            });
-            console.timeEnd(`Fetch list at offset ${offset}`);
-
-            if (!listResp.ok) {
-                const errorText = await listResp.text()
-                return NextResponse.json(
-                    {
-                        error: "Ошибка Яндекс.Диска",
-                        message: `Не удалось получить список файлов (статус ${listResp.status})`,
-                        hint: "Проверьте, что ссылка правильная и папка доступна публично",
-                        details: errorText,
-                    },
-                    { status: 502 },
-                )
-            }
-
-            listJson = await listResp.json();
-            items = listJson._embedded?.items ?? [];
-            allItems.push(...items);
-
-            offset += items.length;
-        }
-
-        const imageItems = allItems.filter((it: any) => it.type === "file" && IMAGE_EXT_RE.test(it.name ?? it.path));
-
-        const hrefs: string[] = [];
-        const downloadPromises: Promise<string | null>[] = [];
-
-        imageItems.forEach((it: any) => {
-            if (it.file) {
-                hrefs.push(it.file);
-                return;
-            }
-
-            let relativePath = it.path.replace(rootPath, '');
-            if (!relativePath.startsWith('/')) {
-                relativePath = '/' + relativePath;
-            }
-
-            const downloadUrl = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${encodeURIComponent(trimmed)}&path=${encodeURIComponent(relativePath)}`;
-
-            downloadPromises.push(
-                fetch(downloadUrl)
-                    .then(dlResp => {
-                        if (!dlResp.ok) return null;
-                        return dlResp.json();
-                    })
-                    .then(dlJson => typeof dlJson?.href === "string" ? dlJson.href : null)
-                    .catch(() => null)
-            );
-        });
-
-        const results = await Promise.all(downloadPromises);
-        results.forEach((r) => r && hrefs.push(r));
+        const hrefs = (await Promise.all(promises)).filter(Boolean) as string[]
 
         return NextResponse.json(hrefs, {
             headers: {
-                "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=7200",
+                "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=172800",
             },
         })
     } catch (err) {
-        return NextResponse.json(
-            {
-                error: "Ошибка сервера",
-                message: "Произошла непредвиденная ошибка при загрузке изображений",
-                details: err instanceof Error ? err.message : String(err),
-            },
-            { status: 500 },
-        )
+        console.error("Menu API error:", err)
+        return NextResponse.json({ error: "Не удалось загрузить меню" }, { status: 500 })
     }
 }
