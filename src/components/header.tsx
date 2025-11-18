@@ -8,7 +8,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import GradualBlur from "./ui/gradual-blur";
 
-export function MobileMenu({ navLinks }: { navLinks: { href: string; label: string }[] }) {
+export function MobileMenu({ navLinks }: Readonly<{ navLinks: { href: string; label: string }[] }>) {
     const [isOpen, setIsOpen] = useState(false);
     const pathname = usePathname();
 
@@ -203,7 +203,6 @@ export function Header() {
                                     <span
                                         className={`relative z-10 ${isActive ? "text-foreground" : ""}`}>{link.label}</span>
 
-                                    {/* animated underline */}
                                     <span
                                         className={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-300 ${
                                             isActive ? "w-full" : "w-0 group-hover:w-full"

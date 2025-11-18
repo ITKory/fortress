@@ -5,8 +5,6 @@ import { Button } from "@/src/components/ui/button"
 import { ParallaxScroll } from "@/src/components/parallax-scroll"
 import { Drawer, DrawerTrigger, DrawerContent, DrawerTitle, DrawerDescription } from "@/src/components/ui/drawer"
 
-// Больше не нужен SHARE_LINK на клиенте!
-
 export default function Menu(): JSX.Element {
     const [images, setImages] = useState<string[]>([])
     const [loading, setLoading] = useState<boolean>(false)

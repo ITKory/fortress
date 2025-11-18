@@ -42,7 +42,6 @@ export default function Hero() {
                 </div>
 
 
-                {/* Набор карточек-фичей для наполнения */}
                 <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 px-4 md:px-0">
                     {[
                         { title: 'Мангал & Кебабы', desc: 'Большой выбор мяса, приготовленного на мангале.' },

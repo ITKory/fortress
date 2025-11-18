@@ -115,7 +115,6 @@ function LocationIcon({ type }: Readonly<{ type: pointType }>) {
   )
 }
 
-/* ImageWithFallback как в исходнике */
 function ImageWithFallback({ src, alt, width, height, className, fill = false, sizes }: Readonly<{
   src: string;
   alt: string;
@@ -277,7 +276,7 @@ function MobileLocationsList({ items }: Readonly<{ items: LocationItem[] }>) {
       </div>
   )
 }
-/* --- десктопная версия: full-viewport slides, более выразительный overlay --- */
+
 function DesktopCarousel({ items }: { items: LocationItem[] }) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [hoveredButton, setHoveredButton] = useState<"prev" | "next" | null>(null)
@@ -382,7 +381,6 @@ export default function LocationsCarousel() {
           <h2 className="font-serif text-4xl md:text-6xl font-light text-center mb-8 md:mb-10 text-balance">Наши локации</h2>
         </div>
 
-        {/* Carousel itself stretches full-viewport width */}
         {isMobile ? <MobileLocationsList items={locations} /> : <DesktopCarousel items={locations} />}
       </section>
   )
