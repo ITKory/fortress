@@ -3,19 +3,10 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Phone } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import GradualBlur from "./ui/gradual-blur";
-
-/*
-  Изменения:
-  - Убран эффект заполнения (hover background) у кнопок.
-  - Добавлен ненавязчивый hover: лёгкое масштабирование, небольшая тень и усиление границы.
-  - Поправлены опечатки (например, Phone icon).
-  - Поддержана доступность: aria-labels и фокус-стили.
-*/
 
 export function MobileMenu({ navLinks }: { navLinks: { href: string; label: string }[] }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -34,19 +25,16 @@ export function MobileMenu({ navLinks }: { navLinks: { href: string; label: stri
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    // Закрываем меню при смене маршрута
-    useEffect(() => {
+     useEffect(() => {
         closeMobileMenu();
     }, [pathname]);
 
-    // Общие классы для ненавязчивого hover-эффекта (чтобы не дублировать)
-    const subtleHover =
+     const subtleHover =
         "transition-transform duration-200 ease-in-out hover:scale-[1.03] hover:shadow-sm hover:border-primary/80 focus-visible:ring-2 focus-visible:ring-primary/30";
 
     return (
         <>
-            {/* Trigger: visible on mobile only */}
-            <Button
+             <Button
                 onClick={openMobileMenu}
                 aria-label="Open mobile menu"
                 variant="outline"
@@ -59,7 +47,6 @@ export function MobileMenu({ navLinks }: { navLinks: { href: string; label: stri
             <AnimatePresence>
                 {isOpen && (
                     <>
-                        {/* Fullscreen Backdrop */}
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -70,7 +57,6 @@ export function MobileMenu({ navLinks }: { navLinks: { href: string; label: stri
                             aria-hidden="true"
                         />
 
-                        {/* Panel — fixed full-height container */}
                         <motion.div
                             initial={{ x: "-100%" }}
                             animate={{ x: 0 }}
@@ -80,7 +66,6 @@ export function MobileMenu({ navLinks }: { navLinks: { href: string; label: stri
                             role="dialog"
                             aria-modal="true"
                         >
-                            {/* side panel */}
                             <div className="w-full max-w-[400px] bg-muted p-4 shadow-lg border border-border/40 flex flex-col">
                                 <div className="pl-2 flex items-baseline justify-between mb-6">
                                     <p className="text-2xl font-semibold">Меню</p>
@@ -112,7 +97,6 @@ export function MobileMenu({ navLinks }: { navLinks: { href: string; label: stri
                                     ))}
                                 </nav>
 
-                                {/* Заказать (mobile) — полная ширина, небольшой ненавязчивый эффект */}
                                 <div className="mb-3">
                                     <Button
                                         asChild
@@ -128,32 +112,9 @@ export function MobileMenu({ navLinks }: { navLinks: { href: string; label: stri
                                         </a>
                                     </Button>
                                 </div>
-
-                                {/* Телефонная CTA в мобильном меню */}
-                                <div className="mt-auto mb-4">
-                                    <Button
-                                        asChild
-                                        className={`w-full border-2 border-primary text-primary px-8 py-6 rounded-full bg-transparent ${subtleHover}`}
-                                    >
-                                        <a
-                                            href="tel:+79059775700"
-                                            onClick={closeMobileMenu}
-                                            aria-label={`Позвонить +7 905 977-57-00`}
-                                            className="flex flex-col items-center leading-tight"
-                                        >
-                                            <span className="text-[11px] uppercase tracking-wider leading-none">Служба доставки</span>
-                                            <span className="inline-flex items-center font-semibold leading-tight">
-                        <Phone className="w-4 h-4 mr-2" />
-                        +7 905 977-57-00
-                      </span>
-                                        </a>
-                                    </Button>
-                                </div>
-
                                 <div className="mt-2 text-sm italic tracking-tighter">Вайнахская, восточная и европейская кухня.</div>
                             </div>
 
-                            {/* пустая область справа, чтобы клик по ней закрывал меню (фон) */}
                             <div className="flex-1" />
                         </motion.div>
                     </>
@@ -166,10 +127,6 @@ export function MobileMenu({ navLinks }: { navLinks: { href: string; label: stri
 export function Header() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [activeSection, setActiveSection] = useState<string | null>(null);
-
-    // Phone config
-    const phoneDisplay = "+7 905 977-57-00";
-    const phoneHref = "tel:+79059775700";
     const orderHref = "https://eda.yandex.ru/r/bashnya_hudma";
 
     const navLinks = [
@@ -179,7 +136,6 @@ export function Header() {
         {href: "#reviews", label: "Отзывы"},
     ];
 
-    // header scroll state
     useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 20);
@@ -189,7 +145,6 @@ export function Header() {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
-    // observe sections to highlight active nav item
     useEffect(() => {
         const ids = navLinks.map((l) => l.href.replace("#", ""));
         const targets = ids.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
@@ -213,7 +168,6 @@ export function Header() {
         return () => observer.disconnect();
     }, []);
 
-    // subtle hover shared class (keeps consistency)
     const subtleHover =
         "transition-transform duration-200 ease-in-out hover:scale-[1.03] hover:shadow-sm hover:border-primary/80 focus-visible:ring-2 focus-visible:ring-primary/30";
 
@@ -228,7 +182,6 @@ export function Header() {
             <div className={`container mx-auto relative transition-all duration-500 ${isScrolled ? "px-6" : "px-4"}`}>
                 <div
                     className={`flex items-center justify-between transition-all duration-500 ${isScrolled ? "h-20" : "h-24"}`}>
-                    {/* Logo */}
                     <Link href="/" className="relative group" aria-label="На главную">
                         <div
                             className={`relative transition-all duration-500 group-hover:scale-110 ${isScrolled ? "w-32 h-32" : "w-40 h-40"}`}
@@ -261,25 +214,7 @@ export function Header() {
                         })}
                     </nav>
 
-                    {/* Right-side CTAs (desktop) */}
                     <div className="hidden md:flex items-center gap-3">
-                        {/* Телефон */}
-                        <Button
-                            asChild
-                            className={`border-2 border-primary text-primary px-8 py-6 rounded-full bg-transparent ${subtleHover}`}
-                        >
-                            <a href={phoneHref} aria-label={`Позвонить ${phoneDisplay}`}
-                               className="flex flex-col items-center leading-tight">
-                                <span
-                                    className="text-[11px] uppercase tracking-wider leading-none">Служба доставки</span>
-                                <span className="inline-flex items-center font-semibold leading-tight">
-                                    <Phone className="w-4 h-4 mr-2"/>
-                                    {phoneDisplay}
-                                </span>
-                            </a>
-                        </Button>
-
-                        {/* Заказать */}
                         <Button
                             asChild
                             className={`border-2 border-primary text-primary px-4 py-6 rounded-full bg-transparent ${subtleHover}`}
@@ -291,7 +226,6 @@ export function Header() {
                         </Button>
                     </div>
 
-                    {/* Mobile Menu (uses component above) */}
                     <div className="md:hidden">
                         <MobileMenu navLinks={navLinks}/>
                     </div>

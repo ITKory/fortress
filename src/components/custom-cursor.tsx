@@ -15,7 +15,7 @@ export function CustomCursor() {
     const cursorYSpring = useSpring(cursorY, springConfig)
 
     const [tooltip, setTooltip] = useState<string>("")
-    const [isInside, setIsInside] = useState(false) // cursor inside viewport
+    const [isInside, setIsInside] = useState(false)
     const hideTimeoutRef = useRef<number | null>(null)
 
     useEffect(() => {

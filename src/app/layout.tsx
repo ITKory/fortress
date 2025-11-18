@@ -32,7 +32,7 @@ export const metadata: Metadata = {
    openGraph: {
     title: "Сеть Ресторанов | Башня",
     description: "Откройте для себя мир изысканной кухни в наших халяль ресторанах.",
-    url: "https://stekloplast-engineering.ru",
+    url: "https://www.bashnyarest.com/",
     siteName: "Башня",
     locale: "ru_RU",
     type: "website",

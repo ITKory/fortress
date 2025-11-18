@@ -3,19 +3,22 @@
 import React, { useEffect, useState, useCallback, useRef } from "react"
 import Image from "next/image"
 import { Button } from "@/src/components/ui/button"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, Phone, Clock } from 'lucide-react'
 import HandDrawnArrow from "./hand-drawn-arrow"
-import {useIsMobile} from "@/src/hooks/use-mobile";
+import { useIsMobile } from "@/src/hooks/use-mobile"
 
-/**
- * Обновлённая структура данных: addressLines — массив строк,
- * hours — строка/метка для приятного отображения.
- */
+enum pointType {
+  shava = 0,
+  rest = 1,
+}
+
 type LocationItem = {
   name: string
   addressLines: string[]
   image: string
   hours: string
+  phone: string
+  pointType: pointType
 }
 
 const locations: LocationItem[] = [
@@ -25,81 +28,104 @@ const locations: LocationItem[] = [
       "Пресненская набережная, д. 10",
       "Метро: Деловой центр (Москва-Сити)",
     ],
-    image: "/locations/1.png",
+    image: "/locations/1.jpg",
+    phone: "+7 (905) 977-57-00",
     hours: "Пн–Сб: 10:00–22:00 • Вс: 12:00–18:00",
+    pointType: pointType.rest,
   },
   {
-    name: "Набережная",
+    name: "Ботанический сад",
     addressLines: [
       "ул. Вильгельма Пика, д. 11",
       "Метро: Ботанический сад",
     ],
-    image: "/locations/2.png",
+    image: "/locations/2.jpg",
+    phone: "+7 (905) 977-57-00",
     hours: "Ежедневно: 10:00–22:00",
+    pointType: pointType.rest,
   },
   {
-    name: "Парковый (Центр)",
+    name: "Овчинниковский переулок",
     addressLines: [
       "Б. Овчинниковский пер., д. 16",
       "Метро: Новокузнецкая",
     ],
-    image: "/locations/3.png",
+    phone: "+7 (903) 538-31-91",
+    image: "/locations/8.jpg",
     hours: "Ежедневно: 10:00–22:00",
+    pointType: pointType.rest,
   },
   {
-    name: "Парковый (Красногорск)",
+    name: "Фудмолл BAZAAR",
     addressLines: [
       "м-9 Балтия, 26-й км., д. 7А, ФУДМОЛЛ BAZAAR",
       "МО, г.о. Красногорск",
     ],
-    image: "/locations/4.jpg",
+    phone: "+7 (936) 277-57-00",
+    image: "/locations/3.png",
     hours: "Ежедневно: 10:00–22:00",
+    pointType: pointType.rest,
   },
   {
     name: "Никольская",
+    phone: "+7 (905) 977-57-00",
     addressLines: [
       "ул. Никольская, д. 25",
       "Центр города",
     ],
-    image: "/locations/5.jpg",
+    image: "/locations/6.jpg",
     hours: "Круглосуточно",
+    pointType: pointType.shava,
   },
   {
-    name: "Б. Дмитровка",
+    name: "Дмитровка",
+    phone: "+7 (905) 977-57-00",
     addressLines: [
       "ул. Большая Дмитровка, д. 7/5, стр. 1",
       "Центр — рядом с театральным кварталом",
     ],
-    image: "/locations/6.jpg",
+    image: "/locations/7.jpg",
     hours: "Круглосуточно",
+    pointType: pointType.shava,
   },
 ]
-/* --- компонент Image с fallback для next/image --- */
-function ImageWithFallback({
-                             src,
-                             alt,
-                             width,
-                             height,
-                             className,
-                             fill = false,
-                             sizes,
-                           }: {
-  src: string
-  alt: string
-  width?: number
-  height?: number
-  className?: string
-  fill?: boolean
-  sizes?: string
-}) {
+
+function sanitizePhoneForTel(phone?: string) {
+  if (!phone) return ""
+  // keep + and digits
+  return phone.replace(/[^+\d]/g, "")
+}
+
+function LocationIcon({ type }: { type: pointType }) {
+  // simple inline SVGs — lightweight and customizable
+  if (type === pointType.shava) {
+    return (
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+          <path d="M12 2v2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M7 7c0 3 2 5 5 5s5-2 5-5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          <rect x="3" y="11" width="18" height="9" rx="2" stroke="currentColor" strokeWidth="1.6" />
+        </svg>
+    )
+  }
+
+  return (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+        <path d="M3 12h18" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M5 12v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M9 8h6v4H9z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+  )
+}
+
+/* ImageWithFallback как в исходнике */
+function ImageWithFallback({ src, alt, width, height, className, fill = false, sizes }: { src: string; alt: string; width?: number; height?: number; className?: string; fill?: boolean; sizes?: string }) {
   const [imgSrc, setImgSrc] = useState(src)
 
   useEffect(() => setImgSrc(src), [src])
 
   return (
-      // Для cover/contain используем fill + object-cover, для миниатюр — width/height
       <Image
-          src={imgSrc}
+          src={imgSrc || "/placeholder.svg"}
           alt={alt}
           {...(fill ? { fill: true } : { width: width ?? 96, height: height ?? 96 })}
           sizes={sizes}
@@ -112,7 +138,7 @@ function ImageWithFallback({
   )
 }
 
-/* --- мобильная карусель (переписанная как дискретная карусель с свайпами) --- */
+/* --- мобильная версия с full-viewport слайдами --- */
 function MobileLocationsList({ items }: { items: LocationItem[] }) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const carouselRef = useRef<HTMLDivElement | null>(null)
@@ -173,62 +199,69 @@ function MobileLocationsList({ items }: { items: LocationItem[] }) {
   }, [handleTouchStart, handleTouchMove, handleTouchEnd])
 
   return (
-      <div className="relative px-4 mt-4 md:hidden pb-8">
-        <div
-            ref={carouselRef}
-            className="overflow-hidden rounded-3xl touch-pan-y" // touch-pan-y позволяет вертикальный скролл
-        >
-          <div
-              className="flex transition-transform duration-500 ease-out"
-              style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-          >
-            {items.map((location, index) => (
-                <div key={index} className="min-w-full flex-shrink-0">
-                  <div className="relative w-full h-[540px] bg-muted/5 overflow-hidden rounded-3xl">
-                    <ImageWithFallback
-                        src={location.image}
-                        alt={location.name}
-                        fill
-                        className="object-cover select-none"
-                        sizes="100vw"
-                    />
+      <div className="relative w-screen overflow-hidden md:hidden">
+        <div ref={carouselRef} className="flex transition-transform duration-500 ease-out" style={{ transform: `translateX(-${currentIndex * 100}vw)` }}>
+          {items.map((location, index) => (
+              <div key={index} className="min-w-[100vw] flex-shrink-0">
+                <div className="relative w-screen h-[60vh] sm:h-[64vh] bg-muted/5 overflow-hidden">
+                  <ImageWithFallback
+                      src={location.image || "/placeholder.svg"}
+                      alt={location.name}
+                      fill
+                      className="object-cover select-none"
+                      sizes="100vw"
+                  />
 
-                    <div className="absolute bottom-6 left-6 right-6">
-                      <div className="max-w-3xl bg-card/75 border border-border rounded-2xl p-6 backdrop-blur-sm">
-                        <h3 className="font-serif text-3xl mb-2 text-foreground">{location.name}</h3>
-                        <address className="not-italic text-lg mb-1 text-foreground/95 whitespace-pre-line">
-                          {location.addressLines.join("\n")}
-                        </address>
-                        <div className="mt-2">
-                      <span className="inline-block text-base px-3 py-1 rounded-full bg-background/5 border border-border">
-                        {location.hours}
-                      </span>
+                  <div className="absolute bottom-6 left-4 right-4">
+                    <div className="max-w-3xl bg-gradient-to-br from-black/40 to-black/20 border border-border rounded-2xl p-4 backdrop-blur-md text-white">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 p-2 rounded-lg bg-white/10">
+                          <LocationIcon type={location.pointType} />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-serif text-xl text-white">{location.name}</h3>
+                          <address className="not-italic text-sm text-white/90 whitespace-pre-line">{location.addressLines.join("\n")}</address>
+                          <div className="mt-2 flex flex-wrap items-center gap-2">
+                            <a href={`tel:${sanitizePhoneForTel(location.phone)}`} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-sm">
+                              <Phone className="h-4 w-4" />
+                              <span>{location.phone}</span>
+                            </a>
+                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/20 border border-white/30 text-white text-sm font-medium">
+                          <Clock className="h-4 w-4 flex-shrink-0" />
+                          <span>{location.hours}</span>
+                        </span>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-            ))}
-          </div>
+              </div>
+          ))}
         </div>
 
-        {/* Pagination dots */}
-        <div className="flex justify-center gap-2 mt-4">
+        <div className="absolute left-4 top-1/2 -translate-y-1/2">
+          <button onClick={() => setCurrentIndex((i) => (i - 1 + items.length) % items.length)} className="w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center">
+            <ChevronLeft className="h-5 w-5 text-white" />
+          </button>
+        </div>
+
+        <div className="absolute right-4 top-1/2 -translate-y-1/2">
+          <button onClick={() => setCurrentIndex((i) => (i + 1) % items.length)} className="w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center">
+            <ChevronRight className="h-5 w-5 text-white" />
+          </button>
+        </div>
+
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
           {items.map((_, i) => (
-              <button
-                  key={i}
-                  onClick={() => setCurrentIndex(i)}
-                  aria-label={`Перейти к слайду ${i + 1}`}
-                  className={`h-2 rounded-full transition-all duration-300 ${i === currentIndex ? "w-8 bg-primary" : "w-2 bg-border hover:bg-primary/50"}`}
-                  type="button"
-              />
+              <button key={i} onClick={() => setCurrentIndex(i)} aria-label={`Перейти к слайду ${i + 1}`} className={`h-2 rounded-full transition-all duration-300 ${i === currentIndex ? "w-8 bg-primary" : "w-2 bg-white/40"}`} />
           ))}
         </div>
       </div>
   )
 }
 
-/* --- десктопная карусель --- */
+/* --- десктопная версия: full-viewport slides, более выразительный overlay --- */
 function DesktopCarousel({ items }: { items: LocationItem[] }) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [hoveredButton, setHoveredButton] = useState<"prev" | "next" | null>(null)
@@ -247,66 +280,53 @@ function DesktopCarousel({ items }: { items: LocationItem[] }) {
   }
 
   return (
-      <div className="relative">
-        <div
-            className="overflow-hidden rounded-3xl focus:outline-none"
-            tabIndex={0}
-            onKeyDown={onKeyDown}
-            aria-roledescription="carousel"
-            aria-label="Наши локации"
-        >
-          <div
-              className="flex transition-transform duration-500 ease-out"
-              style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-          >
+      <div className="relative w-screen -mx-4 md:mx-0">
+        <div className="overflow-hidden focus:outline-none" tabIndex={0} onKeyDown={onKeyDown} aria-roledescription="carousel" aria-label="Наши локации">
+          <div className="flex transition-transform duration-600 ease-out" style={{ transform: `translateX(-${currentIndex * 100}vw)` }}>
             {items.map((location, index) => (
-                <div key={index} className="min-w-full">
-                  {/** фиксированный контейнер — все слайды одного размера */}
-                  <div className="relative w-full h-[540px] md:h-[600px] bg-muted/5 flex items-center justify-center overflow-hidden rounded-3xl">
-                    {/* Image: используем fill + object-cover чтобы все картинки были одинакового размера и аккуратно кадрировались */}
-                    <ImageWithFallback
-                        src={location.image}
-                        alt={location.name}
-                        fill
-                        className="object-cover select-none"
-                        sizes="(max-width: 768px) 100vw, 1200px"
-                    />
+                <div key={index} className="min-w-[100vw]">
+                  <div className="relative w-screen h-[80vh] md:h-[90vh] bg-muted/5 overflow-hidden">
+                    <ImageWithFallback src={location.image || "/placeholder.svg"} alt={location.name} fill className="object-cover select-none" sizes="(max-width: 768px) 100vw, 1600px" />
 
-                    {/* Текстовая подложка */}
-                    <div className="absolute bottom-6 left-6 right-6 md:bottom-10 md:left-12 md:right-12">
-                      <div className="max-w-3xl bg-card/75 border border-border rounded-2xl p-6 md:p-8 backdrop-blur-sm">
-                        <h3 className="font-serif text-3xl md:text-5xl mb-2 text-foreground">{location.name}</h3>
+                    {/* Overlay card (left) */}
+                    <div className="absolute left-12 top-1/2 max-w-lg">
+                      <div className="bg-card/80 border border-border rounded-3xl p-6 md:p-8 backdrop-blur-md shadow-lg text-foreground">
+                        <div className="flex items-start gap-4">
+                          <div className="flex-shrink-0 p-3 rounded-xl bg-primary/10 border border-primary/20">
+                            <LocationIcon type={location.pointType} />
+                          </div>
+                          <div>
+                            <h3 className="font-serif text-2xl md:text-4xl mb-1">{location.name}</h3>
+                            <address className="not-italic text-sm md:text-base whitespace-pre-line text-foreground/90">{location.addressLines.join("\n")}</address>
 
-                        <address className="not-italic text-lg md:text-xl mb-1 text-foreground/95 whitespace-pre-line">
-                          {location.addressLines.join("\n")}
-                        </address>
+                            <div className="mt-4 flex flex-wrap items-center gap-3">
+                              <a href={`tel:${sanitizePhoneForTel(location.phone)}`} className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-primary text-primary-foreground font-medium shadow-sm">
+                                <Phone className="h-4 w-4" />
+                                <span>{location.phone}</span>
+                              </a>
 
-                        <div className="mt-2">
-                      <span className="inline-block text-base md:text-lg px-3 py-1 rounded-full bg-background/5 border border-border">
-                        {location.hours}
-                      </span>
+                              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/60 border border-muted-foreground/20 text-foreground font-medium hover:bg-muted/80 transition-colors">
+                            <Clock className="h-4 w-4 flex-shrink-0" />
+                            <span className="text-sm md:text-base">{location.hours}</span>
+                          </span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
+
+                    {/* subtle gradient on right for depth */}
+                    <div className="absolute inset-y-0 right-0 w-1/4 pointer-events-none bg-gradient-to-l from-black/40 to-transparent" />
                   </div>
                 </div>
             ))}
           </div>
         </div>
 
-        {/* Controls */}
-        <div className="flex justify-center gap-4 mt-6 items-center">
+        {/* Controls centered below the carousel */}
+        <div className="absolute left-1/2 -translate-x-1/2 bottom-8 flex items-center gap-4">
           <div className="relative">
-            <Button
-                variant="outline"
-                size="icon"
-                onClick={prevSlide}
-                onMouseEnter={() => setHoveredButton("prev")}
-                onMouseLeave={() => setHoveredButton(null)}
-                aria-label="Previous location"
-                className="rounded-full w-12 h-12 border-2 border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
-                disabled={items.length <= 1}
-            >
+            <Button variant="outline" size="icon" onClick={prevSlide} onMouseEnter={() => setHoveredButton("prev")} onMouseLeave={() => setHoveredButton(null)} aria-label="Previous location" className="rounded-full w-12 h-12 border-2 border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300">
               <ChevronLeft className="h-6 w-6" />
             </Button>
             {hoveredButton === "prev" && (
@@ -318,28 +338,12 @@ function DesktopCarousel({ items }: { items: LocationItem[] }) {
 
           <div className="flex items-center gap-2">
             {items.map((_, index) => (
-                <button
-                    key={index}
-                    onClick={() => setCurrentIndex(index)}
-                    aria-label={`Перейти к слайду ${index + 1}`}
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                        index === currentIndex ? "w-8 bg-primary" : "w-2 bg-border hover:bg-primary/50"
-                    }`}
-                />
+                <button key={index} onClick={() => setCurrentIndex(index)} aria-label={`Перейти к слайду ${index + 1}`} className={`h-2 rounded-full transition-all duration-300 ${index === currentIndex ? "w-8 bg-primary" : "w-2 bg-border hover:bg-primary/50"}`} />
             ))}
           </div>
 
           <div className="relative">
-            <Button
-                variant="outline"
-                size="icon"
-                onClick={nextSlide}
-                onMouseEnter={() => setHoveredButton("next")}
-                onMouseLeave={() => setHoveredButton(null)}
-                aria-label="Next location"
-                className="rounded-full w-12 h-12 border-2 border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
-                disabled={items.length <= 1}
-            >
+            <Button variant="outline" size="icon" onClick={nextSlide} onMouseEnter={() => setHoveredButton("next")} onMouseLeave={() => setHoveredButton(null)} aria-label="Next location" className="rounded-full w-12 h-12 border-2 border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300">
               <ChevronRight className="h-6 w-6" />
             </Button>
             {hoveredButton === "next" && (
@@ -353,19 +357,17 @@ function DesktopCarousel({ items }: { items: LocationItem[] }) {
   )
 }
 
-/* --- экспортируем основной компонент --- */
 export default function LocationsCarousel() {
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile()
 
   return (
-      <section id="locations" className="py-12 md:py-24 px-4">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="font-serif text-4xl md:text-6xl font-light text-center mb-8 md:mb-16 text-balance">
-            Наши локации
-          </h2>
-
-          {isMobile ? <MobileLocationsList items={locations} /> : <DesktopCarousel items={locations} />}
+      <section id="locations" className="py-12 md:py-20 px-0">
+        <div className="max-w-6xl mx-auto px-4">
+          <h2 className="font-serif text-4xl md:text-6xl font-light text-center mb-8 md:mb-10 text-balance">Наши локации</h2>
         </div>
+
+        {/* Carousel itself stretches full-viewport width */}
+        {isMobile ? <MobileLocationsList items={locations} /> : <DesktopCarousel items={locations} />}
       </section>
   )
 }

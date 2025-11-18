@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server"
 
-const CACHE_TTL = 1000 * 60 * 60 // 1 час
-let cache: { t: number; v: string[] } = { t: 0, v: [] }
-
 const IMAGE_EXT_RE = /\.(jpe?g|png|webp|gif|avif|bmp|svg)$/i
 
 export async function GET() {
@@ -30,11 +27,9 @@ export async function GET() {
 
         let listUrl = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${encodeURIComponent(trimmed)}&limit=${limit}&offset=${offset}&fields=_embedded.items.name,_embedded.items.path,_embedded.items.type,_embedded.items.file`;
 
-        console.time(`Fetch list at offset ${offset}`); // Лог для debug времени
-        let listResp = await fetch(listUrl, {
+         let listResp = await fetch(listUrl, {
             next: { revalidate: 3600 },
         });
-        console.timeEnd(`Fetch list at offset ${offset}`);
 
         if (!listResp.ok) {
             const errorText = await listResp.text()
@@ -92,8 +87,6 @@ export async function GET() {
         const hrefs: string[] = [];
         const downloadPromises: Promise<string | null>[] = [];
 
-        console.time('Fetch all downloads'); // Лог общего времени на downloads
-
         imageItems.forEach((it: any) => {
             if (it.file) {
                 hrefs.push(it.file);
@@ -120,10 +113,6 @@ export async function GET() {
 
         const results = await Promise.all(downloadPromises);
         results.forEach((r) => r && hrefs.push(r));
-
-        console.timeEnd('Fetch all downloads');
-
-        cache = { t: Date.now(), v: hrefs };
 
         return NextResponse.json(hrefs, {
             headers: {

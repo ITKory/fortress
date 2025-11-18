@@ -4,8 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Updated color scheme to beige and gold tones for restaurant aesthetic */
-  --background: oklch(0.98 0.01 85);
+   --background: oklch(0.98 0.01 85);
   --foreground: oklch(0.25 0.02 75);
   --card: oklch(0.96 0.015 80);
   --card-foreground: oklch(0.25 0.02 75);
@@ -125,8 +124,7 @@
   }
 }
 
-/* Improved arrow animations with smoother timing and better stroke-dasharray values */
-@keyframes draw-line {
+ @keyframes draw-line {
   from {
     stroke-dashoffset: 80;
   }
@@ -159,35 +157,27 @@
   animation: draw-head 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
 }
 
-/* ---------- Firefox ---------- */
-/* thin + цвет; в FF нет opacity-transition для скроллбаров, поэтому
-   делаем скрытие/показ через смену цвета при hover/focus-within */
 html {
   scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: transparent transparent; /* по умолчанию скрываем (transparent) */
 }
 
-/* при наведении/фокусе показываем тёмный ползунок */
-body:hover,
+ body:hover,
 body:focus-within {
   scrollbar-color: var(--sb-thumb) transparent;
 }
 
-/* ---------- WebKit / Blink (Chrome, Safari, Edge) ---------- */
-/* Базовые размеры трека */
 *::-webkit-scrollbar {
   width: var(--sb-width);
   height: var(--sb-width);
 }
 
-/* Делать трек прозрачным (чтобы выглядел «плавающим») */
 *::-webkit-scrollbar-track {
   background: transparent;
   margin: var(--sb-track-padding);
 }
 
-/* Ползунок — по умолчанию невидим (opacity 0) */
 *::-webkit-scrollbar-thumb {
   background: var(--sb-thumb);
   border-radius: var(--sb-radius);
@@ -196,38 +186,32 @@ body:focus-within {
   -webkit-backdrop-filter: blur(6px);
   box-shadow: 0 1px 6px rgba(0,0,0,0.08) inset;
   transition: opacity 220ms ease, background-color 160ms ease, transform 200ms ease;
-  opacity: 0;                /* скрыт по умолчанию */
+  opacity: 0;
 }
 
-/* Показываем при наведении на страницу (мышь) или когда внутри есть фокус (клавиатура) */
 body:hover *::-webkit-scrollbar-thumb,
 body:focus-within *::-webkit-scrollbar-thumb {
   opacity: 1;
 }
 
-/* Hover/active state (мышь над самим ползунком) */
 *::-webkit-scrollbar-thumb:hover,
 *::-webkit-scrollbar-thumb:active {
   background: var(--sb-thumb-hover);
   transform: scale(1.03);
 }
 
-/* Опционально: слегка заметный трек при hover — делает контраст */
 body:hover *::-webkit-scrollbar-track {
   background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.01));
 }
 
-/* ---------- Scrollable area helper (для контейнеров) ---------- */
-/* Если используешь scrollable блоки, добавь .scroll-area к ним,
-   тогда поведение будет таким же, но не будет зависеть от hover по body. */
+
 .scroll-area {
-  /* обязательно overflow: auto/scroll */
-  -webkit-overflow-scrolling: touch; /* плавный scroll на iOS */
-  scrollbar-width: thin;             /* firefox */
+
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
   scrollbar-color: transparent transparent;
 }
 
-/* показываем скролл для конкретной области при hover/focus */
 .scroll-area:hover,
 .scroll-area:focus-within {
   scrollbar-color: var(--sb-thumb) transparent;
@@ -236,7 +220,6 @@ body:hover *::-webkit-scrollbar-track {
 .scroll-area:hover::-webkit-scrollbar-thumb,
 .scroll-area:focus-within::-webkit-scrollbar-thumb { opacity: 1; }
 
-/* ---------- Accessibility / reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   *::-webkit-scrollbar-thumb {
     transition: none;
@@ -246,18 +229,9 @@ body:hover *::-webkit-scrollbar-track {
   html { scroll-behavior: auto; }
 }
 
-/* ---------- Small devices: ещё тоньше (опционально) ---------- */
 @media (max-width: 640px) {
   :root { --sb-width: 6px; }
 }
-
-/* ---------- Notes ----------
- - В современных macOS/Touch-устройствах нативный scrollbar часто overlay/auto-hidden —
-   эти стили не обязательно будут видны на всех платформах одинаково.
- - Некоторые браузеры (особенно старые) игнорируют ::-webkit-scrollbar. Firefox использует scrollbar-color.
- - Для гарантированного эффекта на всех платформах можно показать тонкую кастомную «полосу»
-   внутри своих scrollable контейнеров и реализовать thumb drag через JS, но это уже сложнее.
--------------------------------- */
 
 
 
