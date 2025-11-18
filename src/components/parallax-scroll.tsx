@@ -39,6 +39,7 @@ const LazyImage: React.FC<{
                         onLoad={() => setIsLoaded(true)}
                         onError={() => setError(true)}
                         loading="lazy"
+                        unoptimized
                     />
                 </>
             ) : (
