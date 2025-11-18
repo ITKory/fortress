@@ -7,9 +7,9 @@ import { CustomCursor } from "@/src/components/custom-cursor";
 
 export default function ClientLayout({
   children,
-}: {
-  children: React.ReactNode
-}) {
+}: Readonly<{
+    children: React.ReactNode
+}>) {
     return (
         <>
             <CustomCursor/>
