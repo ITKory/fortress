@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useRef, useMemo, useState, useEffect } from "react"
+import Image from "next/image"
 import { motion, useScroll, useTransform } from "motion/react"
 import {cn} from "@/src/lib/utils";
 type Props = {
@@ -29,9 +30,10 @@ const LazyImage: React.FC<{
             {!error ? (
                 <>
                     {!isLoaded && <div className="absolute inset-0 bg-muted animate-pulse" />}
-                    <img
+                    <Image
                         src={src || "/placeholder.svg"}
                         alt={alt}
+                        fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className={cn("object-contain transition-opacity duration-300 ", isLoaded ? "opacity-100" : "opacity-0")}
                         onLoad={() => setIsLoaded(true)}
