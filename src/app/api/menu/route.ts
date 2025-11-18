@@ -1,9 +1,7 @@
-// app/api/menu/route.ts
 import { NextResponse } from "next/server"
 
 export async function GET() {
     const SHARE_LINK = process.env.NEXT_PUBLIC_MENU?.trim()
-    console.log('load menu')
 
     if (!SHARE_LINK) {
         return NextResponse.json({ error: "Не настроена переменная NEXT_PUBLIC_MENU" }, { status: 500 })
@@ -14,7 +12,6 @@ export async function GET() {
         let offset = 0
         const limit = 500
 
-        // 1. Получаем список всех файлов (кэшируем на 1 час)
         while (true) {
             const listUrl = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${SHARE_LINK}&limit=${limit}&offset=${offset}&fields=_embedded.items.path,_embedded.items.type,_embedded.items.name`
 
@@ -35,21 +32,19 @@ export async function GET() {
             offset += items.length
         }
 
-        // 2. Только изображения
         const imageItems = allItems.filter(
             (it: any) => it.type === "file" && /\.(jpe?g|png|webp|avif|heic)$/i.test(it.name)
         )
 
-        // 3. Параллельно получаем прямые ссылки на скачивание (они же для просмотра)
         const downloadPromises = imageItems.map(async (item: any) => {
             const pathEncoded = encodeURIComponent(item.path)
             const url = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${SHARE_LINK}&path=${pathEncoded}`
 
             try {
-                const r = await fetch(url, { next: { revalidate: 3600 } }) // тоже кэшируем
+                const r = await fetch(url, { next: { revalidate: 3600 } })
                 if (!r.ok) return null
                 const j = await r.json()
-                return j.href ?? null // это и есть прямая ссылка на файл
+                return j.href ?? null
             } catch {
                 return null
             }
