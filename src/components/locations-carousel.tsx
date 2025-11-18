@@ -68,7 +68,7 @@ const locations: LocationItem[] = [
   },
   {
     name: "Никольская",
-    phone: "+7 (905) 977-57-00",
+    phone: "+7 (905) 977‑57‑00",
     addressLines: [
       "ул. Никольская, д. 25",
       "Центр города",
@@ -79,7 +79,7 @@ const locations: LocationItem[] = [
   },
   {
     name: "Дмитровка",
-    phone: "+7 (905) 977-57-00",
+    phone: "+7 (905) 977‑57‑00",
     addressLines: [
       "ул. Большая Дмитровка, д. 7/5, стр. 1",
       "Центр — рядом с театральным кварталом",
@@ -92,13 +92,11 @@ const locations: LocationItem[] = [
 
 function sanitizePhoneForTel(phone?: string) {
   if (!phone) return ""
-  // keep + and digits
-  return phone.replace(/[^+\d]/g, "")
+  return phone.replaceAll(/[^+\d]/g, "")
 }
 
-function LocationIcon({ type }: { type: pointType }) {
-  // simple inline SVGs — lightweight and customizable
-  if (type === pointType.shava) {
+function LocationIcon({ type }: Readonly<{ type: pointType }>) {
+   if (type === pointType.shava) {
     return (
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
           <path d="M12 2v2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -118,7 +116,15 @@ function LocationIcon({ type }: { type: pointType }) {
 }
 
 /* ImageWithFallback как в исходнике */
-function ImageWithFallback({ src, alt, width, height, className, fill = false, sizes }: { src: string; alt: string; width?: number; height?: number; className?: string; fill?: boolean; sizes?: string }) {
+function ImageWithFallback({ src, alt, width, height, className, fill = false, sizes }: Readonly<{
+  src: string;
+  alt: string;
+  width?: number;
+  height?: number;
+  className?: string;
+  fill?: boolean;
+  sizes?: string
+}>) {
   const [imgSrc, setImgSrc] = useState(src)
 
   useEffect(() => setImgSrc(src), [src])
@@ -138,8 +144,8 @@ function ImageWithFallback({ src, alt, width, height, className, fill = false, s
   )
 }
 
-/* --- мобильная версия с full-viewport слайдами --- */
-function MobileLocationsList({ items }: { items: LocationItem[] }) {
+
+function MobileLocationsList({ items }: Readonly<{ items: LocationItem[] }>) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const carouselRef = useRef<HTMLDivElement | null>(null)
   const touchStart = useRef<{ x: number; y: number } | null>(null)
@@ -158,27 +164,17 @@ function MobileLocationsList({ items }: { items: LocationItem[] }) {
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
     if (!touchStart.current) return
-    const currentX = e.touches[0].clientX
-    const currentY = e.touches[0].clientY
-    const deltaX = touchStart.current.x - currentX
-    const deltaY = touchStart.current.y - currentY
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-      e.preventDefault()
-    }
+    const deltaX = touchStart.current.x - e.touches[0].clientX
+    const deltaY = touchStart.current.y - e.touches[0].clientY
+    if (Math.abs(deltaX) > Math.abs(deltaY)) e.preventDefault()
   }, [])
 
   const handleTouchEnd = useCallback((e: TouchEvent) => {
     if (!touchStart.current) return
-    const endX = e.changedTouches[0].clientX
-    const endY = e.changedTouches[0].clientY
-    const deltaX = touchStart.current.x - endX
-    const deltaY = touchStart.current.y - endY
-    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
-      if (deltaX > 0) {
-        nextSlide()
-      } else {
-        prevSlide()
-      }
+    const deltaX = touchStart.current.x - e.changedTouches[0].clientX
+    if (Math.abs(deltaX) > 50) {
+      if (deltaX > 0) nextSlide()
+      else prevSlide()
     }
     touchStart.current = null
   }, [nextSlide, prevSlide])
@@ -186,11 +182,9 @@ function MobileLocationsList({ items }: { items: LocationItem[] }) {
   useEffect(() => {
     const el = carouselRef.current
     if (!el) return
-
     el.addEventListener("touchstart", handleTouchStart, { passive: true })
     el.addEventListener("touchmove", handleTouchMove, { passive: false })
     el.addEventListener("touchend", handleTouchEnd, { passive: true })
-
     return () => {
       el.removeEventListener("touchstart", handleTouchStart)
       el.removeEventListener("touchmove", handleTouchMove)
@@ -200,7 +194,11 @@ function MobileLocationsList({ items }: { items: LocationItem[] }) {
 
   return (
       <div className="relative w-screen overflow-hidden md:hidden">
-        <div ref={carouselRef} className="flex transition-transform duration-500 ease-out" style={{ transform: `translateX(-${currentIndex * 100}vw)` }}>
+        <div
+            ref={carouselRef}
+            className="flex transition-transform duration-500 ease-out"
+            style={{ transform: `translateX(-${currentIndex * 100}vw)` }}
+        >
           {items.map((location, index) => (
               <div key={index} className="min-w-[100vw] flex-shrink-0">
                 <div className="relative w-screen h-[60vh] sm:h-[64vh] bg-muted/5 overflow-hidden">
@@ -212,22 +210,30 @@ function MobileLocationsList({ items }: { items: LocationItem[] }) {
                       sizes="100vw"
                   />
 
+                  {/* СВЕТЛАЯ КАРТОЧКА — как на десктопе */}
                   <div className="absolute bottom-6 left-4 right-4">
-                    <div className="max-w-3xl bg-gradient-to-br from-black/40 to-black/20 border border-border rounded-2xl p-4 backdrop-blur-md text-white">
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 p-2 rounded-lg bg-white/10">
+                    <div className="max-w-3xl bg-card/80 border border-border rounded-3xl p-5 backdrop-blur-md shadow-xl">
+                      <div className="flex items-start gap-4">
+                        <div className="flex-shrink-0 p-3 rounded-xl bg-primary/10 border border-primary/20">
                           <LocationIcon type={location.pointType} />
                         </div>
                         <div className="flex-1">
-                          <h3 className="font-serif text-xl text-white">{location.name}</h3>
-                          <address className="not-italic text-sm text-white/90 whitespace-pre-line">{location.addressLines.join("\n")}</address>
-                          <div className="mt-2 flex flex-wrap items-center gap-2">
-                            <a href={`tel:${sanitizePhoneForTel(location.phone)}`} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-sm">
+                          <h3 className="font-serif text-2xl text-foreground">{location.name}</h3>
+                          <address className="not-italic text-sm text-foreground/80 whitespace-pre-line mt-1">
+                            {location.addressLines.join("\n")}
+                          </address>
+
+                          <div className="mt-4 flex flex-wrap items-center gap-3">
+                            <a
+                                href={`tel:${sanitizePhoneForTel(location.phone)}`}
+                                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium shadow-sm hover:shadow-md transition-shadow"
+                            >
                               <Phone className="h-4 w-4" />
                               <span>{location.phone}</span>
                             </a>
-                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/20 border border-white/30 text-white text-sm font-medium">
-                          <Clock className="h-4 w-4 flex-shrink-0" />
+
+                            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/60 border border-muted-foreground/20 text-foreground font-medium">
+                          <Clock className="h-4 w-4" />
                           <span>{location.hours}</span>
                         </span>
                           </div>
@@ -240,27 +246,37 @@ function MobileLocationsList({ items }: { items: LocationItem[] }) {
           ))}
         </div>
 
-        <div className="absolute left-4 top-1/2 -translate-y-1/2">
-          <button onClick={() => setCurrentIndex((i) => (i - 1 + items.length) % items.length)} className="w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center">
-            <ChevronLeft className="h-5 w-5 text-white" />
-          </button>
-        </div>
+        {/* Стрелки в стиле сайта */}
+        <button
+            onClick={prevSlide}
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-card/80 backdrop-blur border-2 border-primary flex items-center justify-center hover:bg-primary/90 hover:text-primary-foreground transition-all z-10"
+        >
+          <ChevronLeft className="h-6 w-6" />
+        </button>
 
-        <div className="absolute right-4 top-1/2 -translate-y-1/2">
-          <button onClick={() => setCurrentIndex((i) => (i + 1) % items.length)} className="w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center">
-            <ChevronRight className="h-5 w-5 text-white" />
-          </button>
-        </div>
+        <button
+            onClick={nextSlide}
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-card/80 backdrop-blur border-2 border-primary flex items-center justify-center hover:bg-primary/90 hover:text-primary-foreground transition-all z-10"
+        >
+          <ChevronRight className="h-6 w-6" />
+        </button>
 
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+        {/* Точки индикаторы */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
           {items.map((_, i) => (
-              <button key={i} onClick={() => setCurrentIndex(i)} aria-label={`Перейти к слайду ${i + 1}`} className={`h-2 rounded-full transition-all duration-300 ${i === currentIndex ? "w-8 bg-primary" : "w-2 bg-white/40"}`} />
+              <button
+                  key={i}
+                  onClick={() => setCurrentIndex(i)}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                      i === currentIndex ? "w-8 bg-primary" : "w-2 bg-border/60"
+                  }`}
+                  aria-label={`Слайд ${i + 1}`}
+              />
           ))}
         </div>
       </div>
   )
 }
-
 /* --- десктопная версия: full-viewport slides, более выразительный overlay --- */
 function DesktopCarousel({ items }: { items: LocationItem[] }) {
   const [currentIndex, setCurrentIndex] = useState(0)

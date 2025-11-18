@@ -33,12 +33,11 @@ export default function Footer(): JSX.Element {
     {
       name: "Фудмолл BAZAAR",
       address: "м-9 Балтия, 26-й км., д. 7А, ФУДМОЛЛ BAZAAR",
-      phone: "+7 (905) 977-57-00",
+      phone: "+7 (936) 277-57-00",
     },
     {
       name: "Дмитровка",
       address: "ул. Большая Дмитровка, д. 7/5, стр. 1",
-
       phone: "+7 (905) 977‑57‑00",
     },
   ];

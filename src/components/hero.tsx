@@ -22,7 +22,6 @@ export default function Hero() {
 
     return (
         <section className="relative min-h-[120vh] flex items-start md:items-center justify-center px-4 pt-28 pb-24 overflow-visible  bg-gradient-to-b from-card/90 to-card/10">
-            {/* декоративный радиальный свет позади логотипа */}
             <div className="absolute inset-0 flex justify-center items-start md:items-center pointer-events-none">
                 <div className="w-[60%] h-[40%] md:w-[45%] md:h-[40%] rounded-full bg-[radial-gradient(circle_at_center,rgba(255,214,150,0.08)_0%,transparent_70%)]" />
             </div>
@@ -52,17 +51,10 @@ export default function Hero() {
                     ].map((item, i) => (
                         <div
                             key={item.title}
-                            className={`bg-card/60 backdrop-blur-sm rounded-2xl p-6 text-left transform transition-transform duration-400 hover:-translate-y-2 animate-reveal`}
+                            className={`bg-card/60 backdrop-blur-sm rounded-2xl border-1 p-6 text-left transform transition-transform duration-400 hover:-translate-y-2 animate-reveal`}
                             style={{ animationDelay: `${200 + i * 120}ms` }}
                         >
                             <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary-foreground">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M3 12h18" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                                        <path d="M6 8v8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                </div>
-
                                 <div>
                                     <h4 className="font-medium">{item.title}</h4>
                                     <p className="text-sm text-muted-foreground mt-1">{item.desc}</p>
@@ -72,7 +64,6 @@ export default function Hero() {
                     ))}
                 </div>
 
-                {/* Кнопка — поведение со стрелками при hover */}
                 <div className="mt-8">
                     <div className="relative inline-block">
                         <Button

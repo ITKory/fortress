@@ -35,7 +35,7 @@ export default function Advantages() {
             position: "-top-8 left-1/2 -translate-x-1/2"
         },
         {
-            title: "Более 200 блюд",
+            title: "Более 100 блюд",
             description: "Разнообразное меню на любой вкус: от классики до авторских блюд от шеф-повара",
             icon: (
                 <Image alt='burger' src='/advantages/3.svg' width={60} height={20} />
