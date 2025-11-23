@@ -4,12 +4,14 @@ import { type JSX, useEffect, useState } from "react"
 import { Button } from "@/src/components/ui/button"
 import { ParallaxScroll } from "@/src/components/parallax-scroll"
 import { Drawer, DrawerTrigger, DrawerContent, DrawerTitle, DrawerDescription } from "@/src/components/ui/drawer"
+import { useLockBodyScroll } from "@/src/hooks/use-lock-body-scroll";
 
 export default function Menu(): JSX.Element {
     const [images, setImages] = useState<string[]>([])
     const [loading, setLoading] = useState<boolean>(false)
     const [error, setError] = useState<string | null>(null)
     const [isOpen, setIsOpen] = useState<boolean>(false)
+    useLockBodyScroll(isOpen);
 
     useEffect(() => {
         if (!isOpen) return

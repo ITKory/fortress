@@ -11,7 +11,6 @@ import GradualBlur from "./ui/gradual-blur";
 export function MobileMenu({ navLinks }: Readonly<{ navLinks: { href: string; label: string }[] }>) {
     const [isOpen, setIsOpen] = useState(false);
     const pathname = usePathname();
-
     const openMobileMenu = () => setIsOpen(true);
     const closeMobileMenu = () => setIsOpen(false);
 

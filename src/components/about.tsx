@@ -47,7 +47,7 @@ export default function About(): JSX.Element {
                  <div className="w-full grid gap-12 items-center">
                     <div className="space-y-6 animate-fade-in-up w-full">
                         <h2 className="font-serif text-4xl md:text-5xl font-light leading-tight text-balance">
-                            О нас — <span className="text-primary font-medium">Вайнахская кухня в «Башня»</span>
+                            О нас
                         </h2>
 
                         <div className="text-muted-foreground space-y-4 text-base md:text-lg leading-relaxed">
@@ -66,9 +66,12 @@ export default function About(): JSX.Element {
                             <p className="animate-fade-in delay-400">
                                 Ресторан получил своё название — «Башня». Оно отсылает к чеченским оборонительным башням, которые возводились вокруг сёл со всех четырёх сторон в целях защиты. Мы начали работу в формате ресторана в 2021 году и успешно трудились в центре Москвы (м. Лубянка, ул. Никольская, 8/1). Позднее из‑за реконструкции здания руководство решило развивать формат фудкортов и выстраивать сеть <Highlighter action="highlight" color="#FFF4E6"> <span className="text-primary font-medium">«Башня. Вайнахская кухня».</span></Highlighter>
                             </p>
+
+                            <p className="animate-fade-in delay-500">
+                                Мы успешно работаем с 2021 г. Основное направление деятельности — общественное питание Халяль. <Highlighter action="underline" color="#FFB74D">Без алкогольной</Highlighter> и <Highlighter action="underline" color="#FFB74D">без табачной</Highlighter> продукции.</p>
                         </div>
 
-                         <div className="absolute sm:hidden top-3 -right-9 w-32 h-32 md:right-0 md:w-52 md:h-52 opacity-70 pointer-events-none ">
+                         <div className="absolute sm:hidden -top-10 -right-9 w-32 h-32 md:right-0 md:w-52 md:h-52 opacity-70 pointer-events-none ">
                             <Image
                                 src="/halal.png"
                                 alt="Сертификация: халяль"

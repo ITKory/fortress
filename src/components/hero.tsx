@@ -32,7 +32,7 @@ export default function Hero() {
             >
                  <div className="mx-auto">
                     <Image
-                        src="/logo.svg"
+                        src="/logo-black.svg"
                         alt="Логотип ресторана «Башня»"
                         width={1600}
                         height={1600}
