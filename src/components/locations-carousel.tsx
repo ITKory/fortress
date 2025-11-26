@@ -220,13 +220,6 @@ function MobileLocationsList({ items }: Readonly<{ items: LocationItem[] }>) {
           ))}
         </div>
 
-        <button onClick={prevSlide} className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-card/80 backdrop-blur border-2 border-primary flex items-center justify-center hover:bg-primary/90 hover:text-primary-foreground transition-all z-10">
-          <ChevronLeft className="h-6 w-6" />
-        </button>
-        <button onClick={nextSlide} className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-card/80 backdrop-blur border-2 border-primary flex items-center justify-center hover:bg-primary/90 hover:text-primary-foreground transition-all z-10">
-          <ChevronRight className="h-6 w-6" />
-        </button>
-
         <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-2 z-10">
           {items.map((_, i) => (
               <button key={i} onClick={() => setCurrentIndex(i)} className={`h-2 rounded-full transition-all duration-300 ${i === currentIndex ? "w-8 bg-primary" : "w-2 bg-border/60"}`} aria-label={`Слайд ${i + 1}`} />
@@ -322,7 +315,7 @@ function DesktopCarousel({ items }: Readonly<{ items: LocationItem[] }>) {
               <ChevronLeft className="h-7 w-7" />
             </Button>
             {hoveredButton === "prev" && (
-                <div className="absolute -top-12 left-1/2 -translate-x-1/2">
+                <div className="absolute top-16 left-1 -translate-x-1/2">
                   <HandDrawnArrow rotation={-60} />
                 </div>
             )}
@@ -350,8 +343,8 @@ function DesktopCarousel({ items }: Readonly<{ items: LocationItem[] }>) {
               <ChevronRight className="h-7 w-7" />
             </Button>
             {hoveredButton === "next" && (
-                <div className="absolute -top-12 left-1/2 -translate-x-1/2">
-                  <HandDrawnArrow rotation={120} />
+                <div className="absolute top-16 left-16 -translate-x-1/2">
+                  <HandDrawnArrow rotation={-120} />
                 </div>
             )}
           </div>
