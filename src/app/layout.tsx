@@ -20,42 +20,51 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: "Сеть Ресторанов | Башня",
-  description: "Откройте для себя мир изысканной кухни в наших халяль ресторанах.",
+    metadataBase: new URL("https://bashnyarest.com"),
 
-   icons: {
-    icon: "/logo.svg",
-    shortcut: "/logo.svg",
-    apple: "/logo.svg",
-  },
-
-   openGraph: {
     title: "Сеть Ресторанов | Башня",
     description: "Откройте для себя мир изысканной кухни в наших халяль ресторанах.",
-    url: "https://www.bashnyarest.com/",
-    siteName: "Башня",
-    locale: "ru_RU",
-    type: "website",
-    images: [
-      {
-        url: "/fortress.svg",
-        width: 1200,
-        height: 630,
-        alt: "Башня — изысканная кухня",
-      },
-    ],
-  },
+
+    icons: {
+        icon: "/logo.svg",
+        shortcut: "/logo.svg",
+        apple: "/logo.svg",
+    },
+
+    openGraph: {
+        title: "Сеть Ресторанов | Башня",
+        description: "Откройте для себя мир изысканной кухни в наших халяль ресторанах.",
+        url: "https://bashnyarest.com/",
+        siteName: "Башня",
+        locale: "ru_RU",
+        type: "website",
+        images: [
+            {
+                url: "/logo.svg",
+                width: 1200,
+                height: 630,
+                alt: "Башня — вайнахская кухня",
+            },
+        ],
+    },
+
+    twitter: {
+        card: "summary_large_image",
+        title: "Сеть Ресторанов | Башня",
+        description: "Откройте для себя мир изысканной кухни в наших халяль ресторанах.",
+        images: ["/logo.svg"],
+    },
 }
 
 export default function RootLayout({
                                      children,
-                                   }: {
-  children: React.ReactNode
-}) {
+                                   }: Readonly<{
+    children: React.ReactNode
+}>) {
   return (
       <html
           lang="ru"
-          className={`${cormorant.variable} ${inter.variable} ${GeistSans.variable} ${GeistMono.variable} antialiased`}
+          className={`${cormorant.variable} ${inter.variable} ${GeistSans.variable} ${GeistMono.variable} antialiasing`}
       >
       <body className="font-sans scroll-smooth">
       <Suspense fallback={<div>Loading...</div>}>

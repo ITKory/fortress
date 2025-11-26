@@ -52,23 +52,24 @@ export default function About(): JSX.Element {
 
                         <div className="text-muted-foreground space-y-4 text-base md:text-lg leading-relaxed">
                             <p className="animate-fade-in delay-100">
-                                <Highlighter action="highlight" color="#FFF4E6"><span className="text-primary font-medium">Вайнахская кухня</span></Highlighter> (чечено‑ингушская) — одна из древнейших и при этом лаконичных кулинарных традиций. Блюда отличаются питательностью и высокой калорийностью, а готовятся быстро из доступных продуктов. <Highlighter action="highlight" color="#FFF4E6"> <span className="text-primary font-medium">Все наши блюда сертифицированы как халяль</span></Highlighter>.
+                                <Highlighter action="highlight" color="#FFF4E6"><span className="text-primary font-medium">Вайнахская кухня</span></Highlighter> (чечено‑ингушская) — одна из древнейших и при этом лаконичных кулинарных традиций. Блюда отличаются питательностью и высокой калорийностью, а готовятся быстро из доступных продуктов. <Highlighter action="highlight" color="#FFF4E6"><span className="text-primary font-medium">Все наши блюда сертифицированы как халяль</span></Highlighter>.
                             </p>
 
                             <p className="animate-fade-in delay-200">
-                                В центре меню — национальные блюда. Например, <Highlighter action="underline" color="#FFB74D">чапильг</Highlighter> — тонкие лепешки из пшеничной муки с разнообразными начинками: творогом, тыквой, картофелем, мясом, зеленью и сыром. <Highlighter action="underline" color="#FFB74D">Жигжиг‑Галнаш</Highlighter> ( "жижиг" — мясо; "галнаш" — галушки) — отварное мясо на косточке с галушками из пшеничной или кукурузной муки.
+                                В центре меню — национальные блюда. Например, <Highlighter action="underline" color="#FFB74D">чапильг</Highlighter> — тонкие лепешки из пшеничной муки с разнообразными начинками: творогом, тыквой, картофелем, мясом, зеленью и сыром. <Highlighter action="underline" color="#FFB74D">Жигжиг‑Галнаш</Highlighter> ( "жижиг" — мясо; "галнаш" — галушки) — отварное мясо (говядина, курица, баранина, сушеная говядина, сушеная колбаса, бараш) на косточке с галушками из пшеничной или кукурузной муки.
                             </p>
 
                             <p className="animate-fade-in delay-300">
-                                Мы также предлагаем <Highlighter action="highlight" color="#FFF4E6"> <span className="text-primary font-medium">кебабы, шашлыки и стейки</span></Highlighter>, бургеры, разнообразные салаты и другие популярные позиции — многие блюда готовятся на мангале.
+                                Также в нашем меню представлены: <Highlighter action="highlight" color="#FFF4E6"> <span className="text-primary font-medium">кебабы, шашлыки, стейки, бургеры на мангале</span></Highlighter>, разнообразные салаты и многое другое.
                             </p>
 
                             <p className="animate-fade-in delay-400">
-                                Ресторан получил своё название — «Башня». Оно отсылает к чеченским оборонительным башням, которые возводились вокруг сёл со всех четырёх сторон в целях защиты. Мы начали работу в формате ресторана в 2021 году и успешно трудились в центре Москвы (м. Лубянка, ул. Никольская, 8/1). Позднее из‑за реконструкции здания руководство решило развивать формат фудкортов и выстраивать сеть <Highlighter action="highlight" color="#FFF4E6"> <span className="text-primary font-medium">«Башня. Вайнахская кухня».</span></Highlighter>
+                                Ресторан получил своё название — «Башня». Оно отсылает к чеченским оборонительным башням, которые возводились вокруг сёл со всех четырёх сторон света в целях защиты. Мы успешно работаем с 2021  г. Работу начали формате ресторана в центре Москвы (м. Лубянка, ул. Никольская 8/1). Позднее из- за реконструкции здания руководство приняло решение развиваться в формате фуд-кортов и выстаивать сеть <Highlighter action="highlight" color="#FFF4E6">«Башня. Вайнахская кухня».</Highlighter>
                             </p>
 
                             <p className="animate-fade-in delay-500">
-                                Мы успешно работаем с 2021 г. Основное направление деятельности — общественное питание Халяль. <Highlighter action="underline" color="#FFB74D">Без алкогольной</Highlighter> и <Highlighter action="underline" color="#FFB74D">без табачной</Highlighter> продукции.</p>
+                                Основное направление деятельности — общественное питание Халяль. <Highlighter action="underline" color="#FFB74D">Без алкогольной</Highlighter> и <Highlighter action="underline" color="#FFB74D">без табачной</Highlighter> продукции.
+                            </p>
                         </div>
 
                          <div className="absolute sm:hidden -top-10 -right-9 w-32 h-32 md:right-0 md:w-52 md:h-52 opacity-70 pointer-events-none ">

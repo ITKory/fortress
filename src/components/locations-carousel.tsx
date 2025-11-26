@@ -25,10 +25,7 @@ type LocationItem = {
 const locations: LocationItem[] = [
   {
     name: "Москва-Сити",
-    addressLines: [
-      "Пресненская набережная, д. 10",
-      "Метро: Деловой центр (Москва-Сити)",
-    ],
+    addressLines: ["Пресненская набережная, д. 10", "Метро: Деловой центр (Москва-Сити)"],
     image: "/locations/1.jpg",
     phone: "+7 (905) 977-57-00",
     hours: "Пн–Сб: 10:00–22:00 • Вс: 12:00–18:00",
@@ -37,10 +34,7 @@ const locations: LocationItem[] = [
   },
   {
     name: "ТЦ BOTANICA",
-    addressLines: [
-      "ул. Вильгельма Пика, д. 11",
-      "Метро: Ботанический сад",
-    ],
+    addressLines: ["ул. Вильгельма Пика, д. 11", "Метро: Ботанический сад"],
     image: "/locations/2.jpg",
     phone: "+7 (905) 977-57-00",
     hours: "Ежедневно: 10:00–22:00",
@@ -49,10 +43,7 @@ const locations: LocationItem[] = [
   },
   {
     name: "БЦ Аркадия",
-    addressLines: [
-      "Б. Овчинниковский пер., д. 16",
-      "Метро: Новокузнецкая",
-    ],
+    addressLines: ["Б. Овчинниковский пер., д. 16", "Метро: Новокузнецкая"],
     phone: "+7 (903) 538-31-91",
     image: "/locations/12.jpeg",
     hours: "Ежедневно: 10:00–22:00",
@@ -61,11 +52,7 @@ const locations: LocationItem[] = [
   },
   {
     name: "ЮГ",
-    addressLines: [
-      "ул. Краснопресненская набережная, д. 14",
-      "Национальный центр РОССИЯ",
-      "Метро: Деловой центр",
-    ],
+    addressLines: ["ул. Краснопресненская набережная, д. 14", "Национальный центр РОССИЯ", "Метро: Деловой центр"],
     image: "/locations/11.jpeg",
     hours: "вт-вс: 10:00–22:00, пн: выходной",
     pointType: pointType.rest,
@@ -73,10 +60,7 @@ const locations: LocationItem[] = [
   },
   {
     name: "Фудмолл BAZAAR",
-    addressLines: [
-      "м-9 Балтия, 26-й км., д. 7А",
-      "МО, г.о. Красногорск",
-    ],
+    addressLines: ["м-9 Балтия, 26-й км., д. 7А", "МО, г. Красногорск"],
     phone: "+7 (936) 277-57-00",
     image: "/locations/3.png",
     hours: "Ежедневно: 10:00–22:00",
@@ -86,11 +70,7 @@ const locations: LocationItem[] = [
   {
     name: "ШАУРМА",
     phone: "+7 (905) 977-57-00",
-    addressLines: [
-      "ул. Никольская, д. 25",
-      "Метро: Лубянка",
-      "ТЦ НАУТИЛУС",
-    ],
+    addressLines: ["ул. Никольская, д. 25", "Метро: Лубянка", "ТЦ НАУТИЛУС"],
     image: "/locations/6.jpg",
     hours: "Круглосуточно",
     pointType: pointType.shava,
@@ -99,10 +79,7 @@ const locations: LocationItem[] = [
   {
     name: "ШАУРМА И ЧУРРОС",
     phone: "+7 (905) 977-57-00",
-    addressLines: [
-      "ул. Большая Дмитровка, д. 7/5, стр. 1",
-      "Центр — рядом с театральным кварталом",
-    ],
+    addressLines: ["ул. Большая Дмитровка, д. 7/5, стр. 1", "Центр — рядом с театральным кварталом"],
     image: "/locations/10.png",
     hours: "Круглосуточно",
     pointType: pointType.shava,
@@ -145,7 +122,6 @@ function ImageWithFallback({ src, alt, width, height, className, fill = false, s
   sizes?: string
 }>) {
   const [imgSrc, setImgSrc] = useState(src)
-
   useEffect(() => setImgSrc(src), [src])
 
   return (
@@ -157,7 +133,7 @@ function ImageWithFallback({ src, alt, width, height, className, fill = false, s
           className={className}
           onError={() => setImgSrc("/placeholder.svg")}
           loading="lazy"
-          quality={80}
+          quality={85}
           priority={false}
       />
   )
@@ -224,14 +200,16 @@ function MobileLocationsList({ items }: Readonly<{ items: LocationItem[] }>) {
                             {location.addressLines.join("\n")}
                           </address>
                           <div className="mt-3 flex flex-wrap items-center gap-2.5">
-                            <a href={`tel:${sanitizePhoneForTel(location.phone)}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium shadow-sm hover:shadow-md transition-shadow">
-                              <Phone className="h-3.5 w-3.5" />
-                              <span>{location.phone}</span>
-                            </a>
+                            {location.phone && (
+                                <a href={`tel:${sanitizePhoneForTel(location.phone)}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium shadow-sm hover:shadow-md transition-shadow">
+                                  <Phone className="h-3.5 w-3.5" />
+                                  <span>{location.phone}</span>
+                                </a>
+                            )}
                             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/60 border border-muted-foreground/20 text-foreground text-xs font-medium">
-                              <Clock className="h-3.5 w-3.5" />
-                              <span>{location.hours}</span>
-                            </span>
+                          <Clock className="h-3.5 w-3.5" />
+                          <span>{location.hours}</span>
+                        </span>
                           </div>
                         </div>
                       </div>
@@ -259,60 +237,71 @@ function MobileLocationsList({ items }: Readonly<{ items: LocationItem[] }>) {
 }
 
 function DesktopCarousel({ items }: Readonly<{ items: LocationItem[] }>) {
+  const slidesToShow = 2
+  const maxIndex = Math.max(0, items.length - slidesToShow)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [hoveredButton, setHoveredButton] = useState<"prev" | "next" | null>(null)
 
-  const nextSlide = useCallback(() => setCurrentIndex((prev) => (prev + 1) % items.length), [items.length])
-  const prevSlide = useCallback(() => setCurrentIndex((prev) => (prev - 1 + items.length) % items.length), [items.length])
-
-  const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "ArrowLeft") prevSlide()
-    if (e.key === "ArrowRight") nextSlide()
-  }
+  const nextSlide = useCallback(() => setCurrentIndex(prev => prev >= maxIndex ? 0 : prev + 1), [maxIndex])
+  const prevSlide = useCallback(() => setCurrentIndex(prev => prev <= 0 ? maxIndex : prev - 1), [maxIndex])
 
   return (
-      <div className="relative w-screen -mx-4 md:mx-0">
-        <div className="overflow-hidden focus:outline-none" tabIndex={0} onKeyDown={onKeyDown}>
-          <div className="flex transition-transform duration-600 ease-out" style={{ transform: `translateX(-${currentIndex * 100}vw)` }}>
+      <div className="relative">
+        <div className="overflow-hidden">
+          <div
+              className="flex transition-transform duration-700 ease-out gap-8 px-8 lg:px-16"
+              style={{ transform: `translateX(-${currentIndex * (100 / slidesToShow)}%)` }}
+          >
             {items.map((location, index) => {
-              const position = location.cardPosition ?? (index % 2 === 0 ? "left" : "right")
+              const isVisible = index >= currentIndex && index < currentIndex + slidesToShow
 
               return (
-                  <div key={index} className="min-w-[100vw]">
-                    <div className="relative w-screen h-[80vh] md:h-[90vh] bg-muted/5 overflow-hidden">
-                      <ImageWithFallback src={location.image || "/placeholder.svg"} alt={location.name} fill className="object-cover select-none" sizes="(max-width: 768px) 100vw, 1600px" />
+                  <div
+                      key={index}
+                      className="w-full md:w-1/2 flex-shrink-0"
+                      style={{ opacity: isVisible ? 1 : 0.3, transition: "opacity 0.5s" }}
+                  >
+                    <div className="relative h-[76vh] lg:h-[84vh] rounded-3xl overflow-hidden shadow-2xl border border-border/50">
+                      <ImageWithFallback
+                          src={location.image}
+                          alt={location.name}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                      />
 
-                      <div className={`absolute top-[70%] md:top-[70%] -translate-y-1/2 max-w-lg ${position === "left" ? "left-12" : "right-12"} `}>
-                        <div className="bg-card/60 border border-border rounded-3xl p-6 md:p-8 backdrop-blur-lg shadow-lg text-foreground">
+                      <div className="absolute bottom-6 left-6 right-6">
+                        <div className="bg-card/70 backdrop-blur-lg border border-border rounded-3xl p-5 shadow-xl">
                           <div className="flex items-start gap-4">
                             <div className="flex-shrink-0 p-3 rounded-xl bg-primary/10 border border-primary/20">
                               <LocationIcon type={location.pointType} />
                             </div>
-                            <div>
-                              <h3 className="font-serif text-2xl md:text-4xl mb-1">{location.name}</h3>
-                              <address className="not-italic text-sm md:text-base whitespace-pre-line text-foreground/90">
+                            <div className="flex-1">
+                              <h3 className="font-serif text-2xl md:text-3xl text-foreground font-medium">
+                                {location.name}
+                              </h3>
+                              <address className="not-italic text-sm md:text-base text-foreground/80 whitespace-pre-line mt-1 leading-tight">
                                 {location.addressLines.join("\n")}
                               </address>
                               <div className="mt-4 flex flex-wrap items-center gap-3">
-                                {location.phone && (  <a href={`tel:${sanitizePhoneForTel(location.phone)}`} className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-primary text-primary-foreground font-medium shadow-sm">
-                                  <Phone className="h-4 w-4" />
-                                  <span>{location.phone}</span>
-                                </a>)}
-                                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/60 border border-muted-foreground/20 text-foreground font-medium hover:bg-muted/80 transition-colors">
-                                  <Clock className="h-4 w-4 flex-shrink-0" />
-                                  <span className="text-sm md:text-base">{location.hours}</span>
-                                </span>
+                                {location.phone && (
+                                    <a
+                                        href={`tel:${sanitizePhoneForTel(location.phone)}`}
+                                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground font-medium shadow-md hover:shadow-lg transition-shadow"
+                                    >
+                                      <Phone className="h-4 w-4" />
+                                      <span className="text-sm">{location.phone}</span>
+                                    </a>
+                                )}
+                                <span className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-muted/70 border border-muted-foreground/20 text-foreground text-sm font-medium">
+                              <Clock className="h-4 w-4" />
+                              <span>{location.hours}</span>
+                            </span>
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
-
-                      {position === "left" ? (
-                          <div className="absolute inset-y-0 right-0 w-1/4 pointer-events-none bg-gradient-to-l from-black/40 to-transparent" />
-                      ) : (
-                          <div className="absolute inset-y-0 left-0 w-1/4 pointer-events-none bg-gradient-to-r from-black/40 to-transparent" />
-                      )}
                     </div>
                   </div>
               )
@@ -320,30 +309,48 @@ function DesktopCarousel({ items }: Readonly<{ items: LocationItem[] }>) {
           </div>
         </div>
 
-        <div className="absolute left-1/2 -translate-x-1/2 bottom-8 flex items-center gap-4">
+        <div className="mt-12 flex justify-center items-center gap-8">
           <div className="relative">
-            <Button variant="outline" size="icon" onClick={prevSlide} onMouseEnter={() => setHoveredButton("prev")} onMouseLeave={() => setHoveredButton(null)} className="rounded-full w-12 h-12 border-2 border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300">
-              <ChevronLeft className="h-6 w-6" />
+            <Button
+                variant="outline"
+                size="icon"
+                onClick={prevSlide}
+                onMouseEnter={() => setHoveredButton("prev")}
+                onMouseLeave={() => setHoveredButton(null)}
+                className="rounded-full w-14 h-14 border-2 border-primary hover:bg-primary hover:text-primary-foreground"
+            >
+              <ChevronLeft className="h-7 w-7" />
             </Button>
             {hoveredButton === "prev" && (
-                <div className="absolute top-10 -translate-x-1/2 pointer-events-none">
+                <div className="absolute -top-12 left-1/2 -translate-x-1/2">
                   <HandDrawnArrow rotation={-60} />
                 </div>
             )}
           </div>
 
-          <div className="flex items-center gap-2">
-            {items.map((_, i) => (
-                <button key={i} onClick={() => setCurrentIndex(i)} className={`h-2 rounded-full transition-all duration-300 ${i === currentIndex ? "w-8 bg-primary" : "w-2 bg-border hover:bg-primary/50"}`} />
+          <div className="flex gap-3">
+            {Array.from({ length: maxIndex + 1 }, (_, i) => (
+                <button
+                    key={i}
+                    onClick={() => setCurrentIndex(i)}
+                    className={`h-2.5 rounded-full transition-all duration-300 ${i === currentIndex ? "w-12 bg-primary" : "w-3 bg-border/60 hover:bg-primary/60"}`}
+                />
             ))}
           </div>
 
           <div className="relative">
-            <Button variant="outline" size="icon" onClick={nextSlide} onMouseEnter={() => setHoveredButton("next")} onMouseLeave={() => setHoveredButton(null)} className="rounded-full w-12 h-12 border-2 border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300">
-              <ChevronRight className="h-6 w-6" />
+            <Button
+                variant="outline"
+                size="icon"
+                onClick={nextSlide}
+                onMouseEnter={() => setHoveredButton("next")}
+                onMouseLeave={() => setHoveredButton(null)}
+                className="rounded-full w-14 h-14 border-2 border-primary hover:bg-primary hover:text-primary-foreground"
+            >
+              <ChevronRight className="h-7 w-7" />
             </Button>
             {hoveredButton === "next" && (
-                <div className="absolute -top-8 translate-x-1/8 pointer-events-none">
+                <div className="absolute -top-12 left-1/2 -translate-x-1/2">
                   <HandDrawnArrow rotation={120} />
                 </div>
             )}
@@ -357,9 +364,11 @@ export default function LocationsCarousel() {
   const isMobile = useIsMobile()
 
   return (
-      <section id="locations" className="py-12 md:py-20 px-0">
-        <div className="max-w-6xl mx-auto px-4">
-          <h2 className="font-serif text-4xl md:text-6xl font-light text-center mb-8 md:mb-10 text-balance">Наши локации</h2>
+      <section id="locations" className="py-12 md:py-20">
+        <div className="max-w-7xl mx-auto px-4 text-center mb-12">
+          <h2 className="font-serif text-4xl md:text-6xl font-light text-balance">
+            Наши локации
+          </h2>
         </div>
 
         {isMobile ? <MobileLocationsList items={locations} /> : <DesktopCarousel items={locations} />}
