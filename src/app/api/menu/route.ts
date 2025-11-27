@@ -1,73 +1,59 @@
+// app/api/menu/route.ts
 import { NextResponse } from "next/server"
 
-export async function GET() {
-    const SHARE_LINK = process.env.NEXT_PUBLIC_MENU?.trim()
+const SHARE_LINK = process.env.NEXT_PUBLIC_MENU?.trim()
+const CACHE_KEY = "menu_original_quality"
 
+export const revalidate = 7200 // 2 часа
+
+declare global {
+    var menu_original_quality: string[] | undefined
+}
+
+export async function GET() {
     if (!SHARE_LINK) {
-        return NextResponse.json({ error: "Не настроена переменная NEXT_PUBLIC_MENU" }, { status: 500 })
+        return NextResponse.json({ error: "Нет ссылки" }, { status: 500 })
+    }
+
+    if (globalThis[CACHE_KEY]) {
+        return NextResponse.json(globalThis[CACHE_KEY])
     }
 
     try {
-        let allItems: any[] = []
-        let offset = 0
-        const limit = 500
-
-        while (true) {
-            const listUrl = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${SHARE_LINK}&limit=${limit}&offset=${offset}&fields=_embedded.items.path,_embedded.items.type,_embedded.items.name`
-
-            const resp = await fetch(listUrl, { next: { revalidate: 3600 } })
-            if (!resp.ok) {
-                const text = await resp.text()
-                return NextResponse.json(
-                    { error: "Ошибка Яндекс.Диска (список)", details: `Статус ${resp.status}`, raw: text },
-                    { status: 502 }
-                )
+         const res = await fetch(
+            `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${SHARE_LINK}&limit=500&fields=_embedded.items.path,_embedded.items.name,_embedded.items.type`,
+            {
+                headers: { "User-Agent": "BashnyaMenu/1.0" },
             }
-
-            const json = await resp.json()
-            const items = json._embedded?.items ?? []
-            allItems.push(...items)
-
-            if (items.length < limit) break
-            offset += items.length
-        }
-
-        const imageItems = allItems.filter(
-            (it: any) => it.type === "file" && /\.(jpe?g|png|webp|avif|heic)$/i.test(it.name)
         )
 
-        const downloadPromises = imageItems.map(async (item: any) => {
-            const pathEncoded = encodeURIComponent(item.path)
-            const url = `https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key=${SHARE_LINK}&path=${pathEncoded}`
+        if (!res.ok) throw new Error("Yandex list failed")
 
-            try {
-                const r = await fetch(url, { next: { revalidate: 3600 } })
-                if (!r.ok) return null
-                const j = await r.json()
-                return j.href ?? null
-            } catch {
-                return null
-            }
+        const json = await res.json()
+        const items = json._embedded?.items ?? []
+
+        const imagePaths = items
+            .filter((item: any) =>
+                item.type === "file" && /\.(jpe?g|png|webp|avif)$/i.test(item.name)
+            )
+            .map((item: any) => item.path)
+
+         const directLinks = imagePaths.map((path: string) => {
+            const encoded = encodeURIComponent(path)
+            return `https://getfile.dokpub.com/yandex/get/${SHARE_LINK}${encoded}`
         })
 
-        let directLinks = await Promise.all(downloadPromises)
-        directLinks = directLinks.filter(Boolean) as string[]
+        const sorted = directLinks.sort((a: string, b: any) => a.localeCompare(b))
 
-        const sortedLinks = directLinks.toSorted((a, b) => a.localeCompare(b))
+         globalThis[CACHE_KEY] = sorted
 
-        return NextResponse.json(sortedLinks, {
+        return NextResponse.json(sorted, {
             headers: {
-                "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=7200",
+                "Cache-Control": "public, s-maxage=7200, stale-while-revalidate=86400",
             },
         })
     } catch (err) {
-        console.error("Menu API fatal error:", err)
-        return NextResponse.json(
-            { error: "Внутренняя ошибка сервера", details: err instanceof Error ? err.message : String(err) },
-            { status: 500 }
-        )
+        console.error("Menu error:", err)
+        return NextResponse.json(globalThis[CACHE_KEY] || [])
     }
 }
-
-export const dynamic = "force-dynamic"
-export const revalidate = 3600

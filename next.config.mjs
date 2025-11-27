@@ -8,6 +8,9 @@ const nextConfig = {
     ],
     unoptimized: true,
   },
+  experimental: {
+    isrMemoryCacheSize: 128 * 1024 * 1024,
+  },
 };
 
 export default nextConfig;
