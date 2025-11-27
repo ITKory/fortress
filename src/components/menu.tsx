@@ -42,7 +42,7 @@ export default function Menu(): JSX.Element {
             <div className="max-w-4xl mx-auto text-center">
                 <h2 className="font-serif text-4xl md:text-6xl font-light mb-6 text-balance">Изысканное меню</h2>
                 <p className="text-lg md:text-xl text-muted-foreground mb-12 text-pretty leading-relaxed max-w-2xl mx-auto">
-                    Наши шеф-повара создают кулинарные шедевры, сочетая традиционные рецепты с современными техниками
+                    Наши повара создают кулинарные шедевры, сочетая традиционные рецепты с современными техниками
                 </p>
 
                 <Drawer open={isOpen} onOpenChange={setIsOpen}>

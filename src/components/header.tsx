@@ -111,7 +111,7 @@ export function MobileMenu({ navLinks }: Readonly<{ navLinks: { href: string; la
                                         </a>
                                     </Button>
                                 </div>
-                                <div className="mt-2 text-sm italic tracking-tighter">Вайнахская, восточная и европейская кухня.</div>
+                                <div className="mt-2 text-sm italic tracking-tighter">Вайнахская, Восточная и Европейская кухня.</div>
                             </div>
 
                             <div className="flex-1" />
