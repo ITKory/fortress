@@ -1,50 +1,40 @@
 // app/api/menu/route.ts
 import { NextResponse } from "next/server";
-import { unstable_cache } from "next/cache";
 
-const PUBLIC_KEY = process.env.NEXT_PUBLIC_MENU?.trim();
+const FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID || "1iDEO-RWT5EwsIe2nCXUB3RYLls5VoSd9";
+const API_KEY = process.env.GOOGLE_DRIVE_API_KEY;
 
-if (!PUBLIC_KEY) throw new Error("NEXT_PUBLIC_MENU не задан");
 
-const getImagePaths = unstable_cache(
-    async (): Promise<string[]> => {
-        const res = await fetch(
-            `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${PUBLIC_KEY}&limit=500&fields=_embedded.items.path,_embedded.items.name,_embedded.items.type`,
-            {
-                headers: { "User-Agent": "RestaurantMenu/1.0" },
-                next: { revalidate: 7200 },
-            }
-        );
-
-        if (!res.ok) throw new Error(`Yandex API error: ${res.status}`);
-
-        const data = await res.json();
-        const items = data._embedded?.items ?? [];
-
-        return items
-            .filter((item: any) =>
-                item.type === "file" && /\.(jpe?g|png|webp|avif)$/i.test(item.name)
-            )
-            .map((item: any) => item.path)
-            .sort();
-    },
-    ["menu-paths-v2"],
-    { revalidate: 7200, tags: ["menu"] }
-);
+export const revalidate = 7200;
 
 export async function GET() {
     try {
-        const paths = await getImagePaths();
-        return NextResponse.json(paths, {
-            headers: { "Cache-Control": "public, s-maxage=7200, stale-while-revalidate=86400" },
-        });
-    } catch (err) {
-        console.error(err);
-        try {
-            const cached = await getImagePaths();
-            return NextResponse.json(cached, { status: 503 });
-        } catch {
-            return NextResponse.json([], { status: 503 });
+        const res = await fetch(
+            `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents&fields=files(id,name,mimeType)&key=${API_KEY}`
+        );
+
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error("Google API error:", res.status, errorText);
+            return NextResponse.json({ error: `API error: ${res.status}` }, { status: res.status });
         }
+
+        const data = await res.json();
+
+        if (!data.files || data.files.length === 0) {
+            return NextResponse.json([]);
+        }
+
+        const images = data.files
+            .filter((f: any) => /\.(jpe?g|png|webp|avif)$/i.test(f.name) && f.mimeType?.startsWith("image/"))
+            .slice(0, 10)  // Лимит 10
+            .map((f: any) => `https://drive.google.com/thumbnail?id=${f.id}&sz=w1920`)  // ← Изменено!
+            .sort();
+
+        console.log(`Получено ${images.length} thumbnail-URL из Google Drive`);
+        return NextResponse.json(images);
+    } catch (err) {
+        console.error("Menu error:", err);
+        return NextResponse.json([], { status: 500 });
     }
 }

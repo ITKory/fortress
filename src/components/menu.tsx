@@ -11,9 +11,6 @@ import {
     DrawerDescription,
 } from "@/src/components/ui/drawer";
 import { useLockBodyScroll } from "@/src/hooks/use-lock-body-scroll";
-import {getYandexDirectUrl} from "@/src/lib/yandex";
-
-const PUBLIC_KEY = process.env.NEXT_PUBLIC_MENU?.trim();
 
 export default function Menu(): JSX.Element {
     const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -23,35 +20,36 @@ export default function Menu(): JSX.Element {
     useLockBodyScroll(isOpen);
 
     useEffect(() => {
-        if (!isOpen || !PUBLIC_KEY) return;
+        if (!isOpen) return;
 
         setLoading(true);
         setError(null);
 
         fetch("/api/menu")
-            .then(r => r.ok ? r.json() : Promise.reject())
-            .then(async (paths: string[]) => {
-                if (!Array.isArray(paths) || paths.length === 0) {
+            .then(r => {
+                if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+                return r.json();
+            })
+            .then((urls: string[]) => {
+                if (!Array.isArray(urls) || urls.length === 0) {
                     setImageUrls([]);
                     return;
                 }
-
-                const urls = await Promise.all(
-                    paths.map(path =>
-                        getYandexDirectUrl(PUBLIC_KEY, path).catch(() => {
-                            console.warn("Не удалось получить ссылку для", path);
-                            return null;
-                        })
-                    )
-                );
-
-                setImageUrls(urls.filter(Boolean) as string[]);
+                console.log("Получено изображений:", urls.length, "первые:", urls.slice(0, 2));
+                setImageUrls(urls);
             })
-            .catch(() => setError("Не удалось загрузить меню"))
+            .catch((err) => {
+                console.error("API error:", err);
+                setError("Не удалось загрузить меню — проверь sharing в Google Drive (каждый файл 'Anyone with the link')");
+            })
             .finally(() => setLoading(false));
     }, [isOpen]);
 
     const prefetch = () => fetch("/api/menu", { cache: "force-cache" }).catch(() => {});
+
+    const handleImageError = (url: string) => {
+        console.error("Ошибка загрузки изображения (403?):", url);
+    };
 
     return (
         <section id="menu" className="py-12 md:py-24 px-4 bg-gradient-to-t from-card/90 to-card/10">
@@ -96,12 +94,14 @@ export default function Menu(): JSX.Element {
 
                             {!loading && !error && imageUrls.length === 0 && (
                                 <div className="flex items-center justify-center h-full text-muted-foreground">
-                                    Меню пустое или временно недоступно
+                                    Меню пустое — добавь публичные jpg в Google Drive папку
                                 </div>
                             )}
 
                             {!loading && !error && imageUrls.length > 0 && (
-                                <ParallaxScroll images={imageUrls} />
+                                <ParallaxScroll
+                                    images={imageUrls}
+                                />
                             )}
                         </div>
                     </DrawerContent>
