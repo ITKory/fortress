@@ -32,8 +32,6 @@ const getImagePaths = unstable_cache(
     { revalidate: 7200, tags: ["menu"] }
 );
 
-export const runtime = "edge";
-
 export async function GET() {
     try {
         const paths = await getImagePaths();
