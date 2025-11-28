@@ -1,59 +1,52 @@
 // app/api/menu/route.ts
-import { NextResponse } from "next/server"
+import { NextResponse } from "next/server";
+import { unstable_cache } from "next/cache";
 
-const SHARE_LINK = process.env.NEXT_PUBLIC_MENU?.trim()
-const CACHE_KEY = "menu_original_quality"
+const PUBLIC_KEY = process.env.NEXT_PUBLIC_MENU?.trim();
 
-export const revalidate = 7200 // 2 часа
+if (!PUBLIC_KEY) throw new Error("NEXT_PUBLIC_MENU не задан");
 
-declare global {
-    var menu_original_quality: string[] | undefined
-}
-
-export async function GET() {
-    if (!SHARE_LINK) {
-        return NextResponse.json({ error: "Нет ссылки" }, { status: 500 })
-    }
-
-    if (globalThis[CACHE_KEY]) {
-        return NextResponse.json(globalThis[CACHE_KEY])
-    }
-
-    try {
-         const res = await fetch(
-            `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${SHARE_LINK}&limit=500&fields=_embedded.items.path,_embedded.items.name,_embedded.items.type`,
+const getImagePaths = unstable_cache(
+    async (): Promise<string[]> => {
+        const res = await fetch(
+            `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${PUBLIC_KEY}&limit=500&fields=_embedded.items.path,_embedded.items.name,_embedded.items.type`,
             {
-                headers: { "User-Agent": "BashnyaMenu/1.0" },
+                headers: { "User-Agent": "RestaurantMenu/1.0" },
+                next: { revalidate: 7200 },
             }
-        )
+        );
 
-        if (!res.ok) throw new Error("Yandex list failed")
+        if (!res.ok) throw new Error(`Yandex API error: ${res.status}`);
 
-        const json = await res.json()
-        const items = json._embedded?.items ?? []
+        const data = await res.json();
+        const items = data._embedded?.items ?? [];
 
-        const imagePaths = items
+        return items
             .filter((item: any) =>
                 item.type === "file" && /\.(jpe?g|png|webp|avif)$/i.test(item.name)
             )
             .map((item: any) => item.path)
+            .sort();
+    },
+    ["menu-paths-v2"],
+    { revalidate: 7200, tags: ["menu"] }
+);
 
-         const directLinks = imagePaths.map((path: string) => {
-            const encoded = encodeURIComponent(path)
-            return `https://getfile.dokpub.com/yandex/get/${SHARE_LINK}${encoded}`
-        })
+export const runtime = "edge";
 
-        const sorted = directLinks.sort((a: string, b: any) => a.localeCompare(b))
-
-         globalThis[CACHE_KEY] = sorted
-
-        return NextResponse.json(sorted, {
-            headers: {
-                "Cache-Control": "public, s-maxage=7200, stale-while-revalidate=86400",
-            },
-        })
+export async function GET() {
+    try {
+        const paths = await getImagePaths();
+        return NextResponse.json(paths, {
+            headers: { "Cache-Control": "public, s-maxage=7200, stale-while-revalidate=86400" },
+        });
     } catch (err) {
-        console.error("Menu error:", err)
-        return NextResponse.json(globalThis[CACHE_KEY] || [])
+        console.error(err);
+        try {
+            const cached = await getImagePaths();
+            return NextResponse.json(cached, { status: 503 });
+        } catch {
+            return NextResponse.json([], { status: 503 });
+        }
     }
 }
