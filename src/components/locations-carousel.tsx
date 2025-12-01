@@ -24,8 +24,8 @@ type LocationItem = {
 
 const locations: LocationItem[] = [
   {
-    name: "Москва-Сити",
-    addressLines: ["Пресненская набережная, д. 10", "Метро: Деловой центр (Москва-Сити)"],
+    name: "Башня на Набережной",
+    addressLines: ["", "Пресненская набережная, д. 10", "Метро: Деловой центр (Москва-Сити)"],
     image: "/locations/1.jpg",
     phone: "+7 (905) 977-57-00",
     hours: "Пн–Сб: 10:00–22:00 • Вс: 12:00–18:00",
@@ -34,7 +34,7 @@ const locations: LocationItem[] = [
   },
   {
     name: "ТЦ BOTANICA",
-    addressLines: ["ул. Вильгельма Пика, д. 11", "Метро: Ботанический сад"],
+    addressLines: ["", "ул. Вильгельма Пика, д. 11", "Метро: Ботанический сад"],
     image: "/locations/2.jpg",
     phone: "+7 (905) 977-57-00",
     hours: "Ежедневно: 10:00–22:00",
@@ -42,8 +42,8 @@ const locations: LocationItem[] = [
     cardPosition: "right"
   },
   {
-    name: "БЦ Аркадия",
-    addressLines: ["Б. Овчинниковский пер., д. 16", "Метро: Новокузнецкая"],
+    name: "ТЦ Аркадия",
+    addressLines: ["Франшиза", "", "Б. Овчинниковский пер., д. 16", "Метро: Новокузнецкая"],
     phone: "+7 (903) 538-31-91",
     image: "/locations/12.jpeg",
     hours: "Ежедневно: 10:00–22:00",
@@ -52,7 +52,7 @@ const locations: LocationItem[] = [
   },
   {
     name: "ЮГ",
-    addressLines: ["ул. Краснопресненская набережная, д. 14", "Национальный центр РОССИЯ", "Метро: Деловой центр"],
+    addressLines: ["Национальный центр РОССИЯ", "", "ул. Краснопресненская набережная, д. 14", "Метро: Деловой центр"],
     image: "/locations/11.jpeg",
     hours: "вт-вс: 10:00–22:00, пн: выходной",
     pointType: pointType.rest,
@@ -60,7 +60,7 @@ const locations: LocationItem[] = [
   },
   {
     name: "Фудмолл BAZAAR",
-    addressLines: ["м-9 Балтия, 26-й км., д. 7А", "МО, г. Красногорск"],
+    addressLines: ["", "м-9 Балтия, 26-й км., д. 7А", "МО, г. Красногорск"],
     phone: "+7 (936) 277-57-00",
     image: "/locations/3.png",
     hours: "Ежедневно: 10:00–22:00",
@@ -70,7 +70,7 @@ const locations: LocationItem[] = [
   {
     name: "ШАУРМА",
     phone: "+7 (905) 977-57-00",
-    addressLines: ["ул. Никольская, д. 25", "Метро: Лубянка", "ТЦ НАУТИЛУС"],
+    addressLines: ["", "ул. Никольская, д. 25", "Метро: Лубянка", "ТЦ НАУТИЛУС"],
     image: "/locations/6.jpg",
     hours: "Круглосуточно",
     pointType: pointType.shava,
@@ -79,7 +79,7 @@ const locations: LocationItem[] = [
   {
     name: "ШАУРМА И ЧУРРОС",
     phone: "+7 (905) 977-57-00",
-    addressLines: ["ул. Большая Дмитровка, д. 7/5, стр. 1", "Центр — рядом с театральным кварталом"],
+    addressLines: ["", "ул. Большая Дмитровка, д. 7/5, стр. 1", "Центр — рядом с театральным кварталом"],
     image: "/locations/10.png",
     hours: "Круглосуточно",
     pointType: pointType.shava,

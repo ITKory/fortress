@@ -8,20 +8,48 @@ type FooterLocation = {
   name: string
   address: string
   phone?: string
+  placeholder?: string
 }
 
 export default function Footer() {
   const [isExpanded, setIsExpanded] = useState(false)
 
   const locations: FooterLocation[] = [
-    { name: "Москва‑Сити", address: "Пресненская набережная, д. 10", phone: "+7 (905) 977‑57‑00" },
+    { name: "Башня на Набережной", address: "Пресненская набережная, д. 10", phone: "+7 (905) 977‑57‑00" },
     { name: "ТЦ BOTANICA", address: "ул. Вильгельма Пика, д. 11", phone: "+7 (905) 977‑57‑00" },
-    { name: "БЦ Аркадия", address: "Б. Овчинниковский пер., д. 16", phone: "+7 (903) 538‑31‑91" },
+    { name: "ТЦ Аркадия", address: "Б. Овчинниковский пер., д. 16", phone: "+7 (903) 538‑31‑91", placeholder: "Франшиза" },
     { name: "Фудмолл BAZAAR", address: "м-9 Балтия, 26‑й км., д. 7А, МО, г. Красногорск", phone: "+7 (936) 277-57‑00" },
     { name: "ШАУРМА", address: "ул. Никольская, д. 25", phone: "+7 (905) 977‑57‑00" },
     { name: "ШАУРМА И ЧУРРОС", address: "ул. Большая Дмитровка, д. 7/5, стр. 1", phone: "+7 (905) 977‑57‑00" },
-    { name: "ЮГ", address: "ул. Краснопресненская набережная, д. 14" },
+    { name: "ЮГ", address: "ул. Краснопресненская набережная, д. 14", placeholder: "Национальный центр РОССИЯ" },
   ]
+
+  const renderLocation = (loc: FooterLocation, index: number) => (
+      <div key={index} className="bg-card/55 backdrop-blur-xs border border-border/60 rounded-3xl p-6 shadow-2xl">
+        <div className="font-serif text-xl font-medium text-foreground">
+          {loc.name}
+        </div>
+
+        {loc.placeholder && (
+            <div className="text-sm font-medium text-primary/90 mt-1">
+              {loc.placeholder}
+            </div>
+        )}
+
+        <div className="text-sm text-foreground/80 mt-2 leading-relaxed">
+          {loc.address}
+        </div>
+
+        {loc.phone && (
+            <a
+                href={`tel:${loc.phone.replaceAll(/[^+\d]/g, "")}`}
+                className="text-primary hover:underline font-medium text-sm mt-3 inline-block"
+            >
+              {loc.phone}
+            </a>
+        )}
+      </div>
+  )
 
   return (
       <footer className="relative overflow-hidden">
@@ -39,7 +67,6 @@ export default function Footer() {
 
         <div className="relative py-16 px-4 text-white">
           <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
-
             <div className="bg-card/55 backdrop-blur-xs border border-border/60 rounded-3xl p-7 shadow-2xl">
               <div className="flex items-start gap-5">
                 <div className="flex-shrink-0 w-20 h-20 md:w-24 md:h-24 flex items-center justify-center">
@@ -106,30 +133,14 @@ export default function Footer() {
 
               <div className="grid gap-5 md:grid-cols-2 md:gap-x-8">
                 {(isExpanded ? locations : locations.slice(0, 2)).map((loc, i) => (
-                    <div key={i} className="md:hidden">
-                      <div className="bg-card/55 backdrop-blur-xs border border-border/60 rounded-3xl p-6 shadow-2xl">
-                        <div className="font-serif text-xl font-medium text-foreground">{loc.name}</div>
-                        <div className="text-sm text-foreground/80 mt-2 leading-relaxed">{loc.address}</div>
-                        {loc.phone && (
-                            <a href={`tel:${loc.phone.replaceAll(/[^+\d]/g, "")}`} className="text-primary hover:underline font-medium text-sm mt-3 inline-block">
-                              {loc.phone}
-                            </a>
-                        )}
-                      </div>
+                    <div key={`mobile-${i}`} className="md:hidden">
+                      {renderLocation(loc, i)}
                     </div>
                 ))}
 
                 {locations.map((loc, i) => (
-                    <div key={i} className="hidden md:block">
-                      <div className="bg-card/55 backdrop-blur-xs border border-border/60 rounded-3xl p-6 shadow-2xl">
-                        <div className="font-serif text-xl font-medium text-foreground">{loc.name}</div>
-                        <div className="text-sm text-foreground/80 mt-2 leading-relaxed">{loc.address}</div>
-                        {loc.phone && (
-                            <a href={`tel:${loc.phone.replaceAll(/[^+\d]/g, "")}`} className="text-primary hover:underline font-medium text-sm mt-3 inline-block">
-                              {loc.phone}
-                            </a>
-                        )}
-                      </div>
+                    <div key={`desktop-${i}`} className="hidden md:block">
+                      {renderLocation(loc, i)}
                     </div>
                 ))}
               </div>

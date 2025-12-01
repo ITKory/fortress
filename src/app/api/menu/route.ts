@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 const FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID || "1iDEO-RWT5EwsIe2nCXUB3RYLls5VoSd9";
 const API_KEY = process.env.GOOGLE_DRIVE_API_KEY;
 
-
 export const revalidate = 7200;
 
 export async function GET() {
@@ -27,8 +26,8 @@ export async function GET() {
 
         const images = data.files
             .filter((f: any) => /\.(jpe?g|png|webp|avif)$/i.test(f.name) && f.mimeType?.startsWith("image/"))
-            .slice(0, 10)  // Лимит 10
-            .map((f: any) => `https://drive.google.com/thumbnail?id=${f.id}&sz=w1920`)  // ← Изменено!
+            .slice(0, 10)
+            .map((f: any) => `https://drive.google.com/thumbnail?id=${f.id}&sz=w1920`)
             .sort();
 
         console.log(`Получено ${images.length} thumbnail-URL из Google Drive`);
