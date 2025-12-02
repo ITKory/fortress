@@ -1,7 +1,7 @@
 // app/api/menu/route.ts
 import { NextResponse } from "next/server";
 
-const FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID || "1iDEO-RWT5EwsIe2nCXUB3RYLls5VoSd9";
+const FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID;
 const API_KEY = process.env.GOOGLE_DRIVE_API_KEY;
 
 export const revalidate = 7200;
