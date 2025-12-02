@@ -47,10 +47,6 @@ export default function Menu(): JSX.Element {
 
     const prefetch = () => fetch("/api/menu", { cache: "force-cache" }).catch(() => {});
 
-    const handleImageError = (url: string) => {
-        console.error("Ошибка загрузки изображения (403?):", url);
-    };
-
     return (
         <section id="menu" className="py-12 md:py-24 px-4 bg-gradient-to-t from-card/90 to-card/10">
             <div className="max-w-4xl mx-auto text-center">

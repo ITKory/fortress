@@ -26,11 +26,9 @@ export async function GET() {
 
         const images = data.files
             .filter((f: any) => /\.(jpe?g|png|webp|avif)$/i.test(f.name) && f.mimeType?.startsWith("image/"))
-            .slice(0, 10)
             .map((f: any) => `https://drive.google.com/thumbnail?id=${f.id}&sz=w1920`)
             .sort();
 
-        console.log(`Получено ${images.length} thumbnail-URL из Google Drive`);
         return NextResponse.json(images);
     } catch (err) {
         console.error("Menu error:", err);
