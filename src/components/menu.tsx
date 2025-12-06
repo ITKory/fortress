@@ -9,6 +9,7 @@ import {
     DrawerContent,
     DrawerTitle,
     DrawerDescription,
+    DrawerClose,  // ← Добавь этот импорт, если ещё нет
 } from "@/src/components/ui/drawer";
 import { useLockBodyScroll } from "@/src/hooks/use-lock-body-scroll";
 
@@ -69,11 +70,32 @@ export default function Menu(): JSX.Element {
                         </Button>
                     </DrawerTrigger>
 
-                    <DrawerContent>
+                    <DrawerContent className="h-[90dvh] max-h-screen">
                         <DrawerTitle className="sr-only">Меню ресторана</DrawerTitle>
                         <DrawerDescription className="sr-only">Галерея блюд</DrawerDescription>
 
-                        <div className="h-[620px] overflow-hidden">
+                        <DrawerClose asChild>
+                            <Button
+                                variant="outline"
+                                className="absolute top-4 right-4 z-50 h-10 w-10 p-0 rounded-full bg-background/80 backdrop-blur-sm transition-all"
+                                aria-label="Закрыть меню"
+                            >
+                                <svg
+                                    className="h-6 w-6"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={2}
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </Button>
+                        </DrawerClose>
+
+                        <div
+                            className="h-full overflow-hidden pt-16 pb-8 px-4"
+                            data-vaul-no-drag=""
+                        >
                             {loading && (
                                 <div className="flex flex-col items-center justify-center h-full gap-4">
                                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
