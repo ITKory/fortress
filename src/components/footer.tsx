@@ -10,24 +10,54 @@ type FooterLocation = {
   address: string
   phone?: string
   placeholder?: string
+  metro?: string
 }
 
 export default function Footer() {
   const [isExpanded, setIsExpanded] = useState(false)
 
   const locations: FooterLocation[] = [
-    {name: "Башня на Набережной", address: "Пресненская набережная, д. 10", phone: "+7 (905) 977‑57‑00"},
-    {name: "ТЦ BOTANICA", address: "ул. Вильгельма Пика, д. 11", phone: "+7 (905) 977‑57‑00"},
+    {
+      name: "Башня на Набережной",
+      address: "Пресненская набережная, д. 10",
+      phone: "+7 (905) 977‑57‑00",
+      metro: "Деловой центр (Москва-Сити)"
+    },
+    {
+      name: "ТЦ BOTANICA",
+      address: "ул. Вильгельма Пика, д. 11",
+      phone: "+7 (905) 977‑57‑00",
+      metro: "Ботанический сад"
+    },
     {
       name: "ТЦ Аркадия",
       address: "Б. Овчинниковский пер., д. 16",
       phone: "+7 (903) 538‑31‑91",
-      placeholder: "Франшиза"
+      placeholder: "Франшиза",
+      metro: "Новокузнецкая"
     },
-    {name: "Фудмолл BAZAAR", address: "м-9 Балтия, 26‑й км., д. 7А, МО, г. Красногорск", phone: "+7 (936) 277-57‑00"},
-    {name: "ШАУРМА", address: "ул. Никольская, д. 25", phone: "+7 (905) 977‑57‑00"},
-    {name: "ШАУРМА И ЧУРРОС", address: "ул. Большая Дмитровка, д. 7/5, стр. 1", phone: "+7 (905) 977‑57‑00"},
-    {name: "ЮГ", address: "ул. Краснопресненская набережная, д. 14", placeholder: "Национальный центр РОССИЯ"},
+    {
+      name: "Фудмолл BAZAAR",
+      address: "м-9 Балтия, 26‑й км., д. 7А, МО, г. Красногорск",
+      phone: "+7 (936) 277-57‑00"
+    },
+    {
+      name: "ШАУРМА",
+      address: "ул. Никольская, д. 25",
+      phone: "+7 (905) 977‑57‑00",
+      metro: "Лубянка"
+    },
+    {
+      name: "ШАУРМА И ЧУРРОС",
+      address: "ул. Большая Дмитровка, д. 7/5, стр. 1",
+      phone: "+7 (905) 977‑57‑00"
+    },
+    {
+      name: "ЮГ",
+      address: "ул. Краснопресненская набережная, д. 14",
+      placeholder: "Национальный центр РОССИЯ",
+      metro: "Деловой центр"
+    },
   ]
 
   const renderLocation = (loc: FooterLocation, index: number) => (
@@ -42,7 +72,13 @@ export default function Footer() {
             </div>
         )}
 
-        <div className="text-sm text-foreground/80 mt-2 leading-relaxed">
+        {loc.metro && (
+            <div className="text-sm text-foreground/80 mt-2 leading-relaxed">
+              Метро: {loc.metro}
+            </div>
+        )}
+
+        <div className="text-sm text-foreground/80 mt-1 leading-relaxed">
           {loc.address}
         </div>
 
@@ -164,17 +200,16 @@ export default function Footer() {
 
           <div className="max-w-6xl mx-auto mt-16 pt-8 text-center">
             <div className="inline-block bg-card/55 backdrop-blur-xs border border-border/60 rounded-full px-10 py-5 shadow-2xl">
-    <span className="text-sm font-medium text-foreground">
-      © 2025 «Башня». Все права защищены.{" "}
+              <span className="text-sm font-medium text-foreground">
+                © 2025 «Башня». Все права защищены.{" "}
 
-      {/* Триггер */}
-      <span
-          data-tooltip-id="legal-tooltip"
-          className="underline underline-offset-2 decoration-dashed cursor-help hover:text-primary transition"
-      >
-        Юридическая информация
-      </span>
-    </span>
+                <span
+                    data-tooltip-id="legal-tooltip"
+                    className="underline underline-offset-2 decoration-dashed cursor-help hover:text-primary transition"
+                >
+                  Юридическая информация
+                </span>
+              </span>
 
               <Tooltip
                   id="legal-tooltip"
@@ -182,7 +217,7 @@ export default function Footer() {
                   clickable={true}
                   className="!bg-black/90 !text-white !text-xs !rounded-lg !px-5 !py-4 !shadow-2xl !backdrop-blur-sm !border !border-white/10 arrow"
                   style={{ maxWidth: "280px" }}
-                  render={({ content }) => (
+                  render={() => (
                       <div className="text-left leading-relaxed">
                         <p className="font-semibold">ИП Хакимов Аслан Асламбекович</p>
                         <p>ИНН 201500772387</p>
