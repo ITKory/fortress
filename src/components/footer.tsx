@@ -100,7 +100,8 @@ export default function Footer() {
               src="/footer.jpeg"
               alt=""
               fill
-              quality={100}
+              sizes="100vw"
+              quality={60}
               className="object-cover"
               priority={false}
           />
@@ -117,8 +118,9 @@ export default function Footer() {
                       alt="Башня"
                       width={96}
                       height={96}
+                      sizes="(max-width: 768px) 256px, 320px"
                       className="w-64 h-64 md:w-80 md:h-80 object-contain mt-12"
-                      priority
+                      priority={false}
                   />
                 </div>
 

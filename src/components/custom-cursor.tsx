@@ -71,16 +71,18 @@ export function CustomCursor() {
 
         // скрываем курсор при потере фокуса/видимости страницы
         const onBlurOrHidden = () => onLeave()
-        window.addEventListener("blur", onBlurOrHidden)
-        document.addEventListener("visibilitychange", () => {
+        const onVisibilityChange = () => {
             if (document.visibilityState !== "visible") onLeave()
-        })
+        }
+        window.addEventListener("blur", onBlurOrHidden)
+        document.addEventListener("visibilitychange", onVisibilityChange)
 
         return () => {
             window.removeEventListener("mousemove", onMove)
             window.removeEventListener("mouseleave", onLeave)
             window.removeEventListener("mouseout", onOut)
             window.removeEventListener("blur", onBlurOrHidden)
+            document.removeEventListener("visibilitychange", onVisibilityChange)
         }
     }, [onMove, onLeave])
 

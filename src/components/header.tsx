@@ -6,7 +6,6 @@ import Image from "next/image";
 import { Button } from "@/src/components/ui/button";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
-import GradualBlur from "./ui/gradual-blur";
 
 export function MobileMenu({ navLinks }: Readonly<{ navLinks: { href: string; label: string }[] }>) {
     const [isOpen, setIsOpen] = useState(false);
@@ -230,15 +229,9 @@ export function Header() {
                 </div>
             </div>
 
-            <GradualBlur
-                target="page"
-                position="top"
-                height="1.5rem"
-                strength={2}
-                divCount={5}
-                curve="bezier"
-                exponential={true}
-                opacity={1}
+            <div
+                aria-hidden="true"
+                className="pointer-events-none fixed top-0 left-0 right-0 z-40 h-6 bg-gradient-to-b from-background/85 to-transparent"
             />
         </header>
     );

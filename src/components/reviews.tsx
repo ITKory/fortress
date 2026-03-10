@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import {useIsMobile} from "@/src/hooks/use-mobile";
 
 const reviews = [
@@ -120,15 +120,31 @@ function ScrollingColumn({
   direction: "up" | "down"
 }) {
   const columnRef = useRef<HTMLDivElement>(null)
+  const [isVisible, setIsVisible] = useState(true)
 
   useEffect(() => {
     const column = columnRef.current
     if (!column) return
 
+    const observer = new IntersectionObserver(([entry]) => {
+      setIsVisible(entry.isIntersecting)
+    }, { threshold: 0.05 })
+
+    observer.observe(column)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const column = columnRef.current
+    if (!column || !isVisible) return
+
     let animationId: number
     let position = direction === "up" ? 0 : -column.scrollHeight / 2
+    let stopped = false
 
     const animate = () => {
+      if (stopped || document.visibilityState !== "visible") return
+
       if (direction === "up") {
         position -= 0.5
         if (position <= -column.scrollHeight / 2) {
@@ -146,8 +162,11 @@ function ScrollingColumn({
 
     animationId = requestAnimationFrame(animate)
 
-    return () => cancelAnimationFrame(animationId)
-  }, [direction])
+    return () => {
+      stopped = true
+      cancelAnimationFrame(animationId)
+    }
+  }, [direction, isVisible])
 
   return (
     <div className="h-[600px] overflow-hidden relative">

@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useRef, useMemo, useState, useEffect } from "react"
+import { useRef, useMemo, useState } from "react"
 import { motion, useScroll, useTransform } from "motion/react"
 import {cn} from "@/src/lib/utils";
 type Props = {
@@ -13,19 +13,12 @@ const LazyImage: React.FC<{
     src: string
     alt: string
     className?: string
-    aspectRatio?: "portrait" | "landscape" | "square"
-}> = ({ src, alt, className, aspectRatio = "square" }) => {
+}> = ({ src, alt, className }) => {
     const [isLoaded, setIsLoaded] = useState(false)
     const [error, setError] = useState(false)
 
-    const heightClass = {
-        portrait: "h-[500px]",
-        landscape: "h-[300px]",
-        square: "h-[400px]",
-    }[aspectRatio]
-
     return (
-        <div className={cn("relative w-full overflow-hidden", heightClass, className)}>
+        <div className={cn("relative w-full overflow-hidden h-[320px] md:h-[360px] lg:h-[420px]", className)}>
             {!error ? (
                 <>
                     {!isLoaded && <div className="absolute inset-0 bg-muted animate-pulse" />}
@@ -33,7 +26,8 @@ const LazyImage: React.FC<{
                         src={src || "/placeholder.svg"}
                         alt={alt}
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        className={cn("object-contain transition-opacity duration-300 ", isLoaded ? "opacity-100" : "opacity-0")}
+                        decoding="async"
+                        className={cn("h-full w-full object-contain transition-opacity duration-300", isLoaded ? "opacity-100" : "opacity-0")}
                         onLoad={() => setIsLoaded(true)}
                         onError={() => setError(true)}
                         loading="lazy"
@@ -46,32 +40,6 @@ const LazyImage: React.FC<{
             )}
         </div>
     )
-}
-
-const useImageAspectRatio = (src: string): "portrait" | "landscape" | "square" => {
-    const [aspectRatio, setAspectRatio] = useState<"portrait" | "landscape" | "square">("square")
-
-    useEffect(() => {
-        const img = new window.Image()
-        img.src = src
-        img.onload = () => {
-            const ratio = img.width / img.height
-            if (ratio < 0.85) {
-                setAspectRatio("portrait")
-            } else if (ratio > 1.3) {
-                setAspectRatio("landscape")
-            } else {
-                setAspectRatio("square")
-            }
-        }
-    }, [src])
-
-    return aspectRatio
-}
-
-const SmartImage: React.FC<{ src: string; alt: string; index: number }> = ({ src, alt }) => {
-    const aspectRatio = useImageAspectRatio(src)
-    return <LazyImage src={src} alt={alt} aspectRatio={aspectRatio} />
 }
 
 export const ParallaxScroll: React.FC<Props> = ({ images, className }) => {
@@ -115,7 +83,7 @@ export const ParallaxScroll: React.FC<Props> = ({ images, className }) => {
                 <div className="grid gap-6">
                     {firstPart.map((el, idx) => (
                         <motion.div style={{ y: translateFirst }} key={"grid-1-" + idx}>
-                            <SmartImage src={el} alt={makeAlt(el, idx)} index={idx} />
+                            <LazyImage src={el} alt={makeAlt(el, idx)} />
                         </motion.div>
                     ))}
                 </div>
@@ -123,7 +91,7 @@ export const ParallaxScroll: React.FC<Props> = ({ images, className }) => {
                 <div className="grid gap-6">
                     {secondPart.map((el, idx) => (
                         <motion.div style={{ y: translateSecond }} key={"grid-2-" + idx}>
-                            <SmartImage src={el} alt={makeAlt(el, idx + firstPart.length)} index={idx + firstPart.length} />
+                            <LazyImage src={el} alt={makeAlt(el, idx + firstPart.length)} />
                         </motion.div>
                     ))}
                 </div>
@@ -131,10 +99,9 @@ export const ParallaxScroll: React.FC<Props> = ({ images, className }) => {
                 <div className="grid gap-6">
                     {thirdPart.map((el, idx) => (
                         <motion.div style={{ y: translateThird }} key={"grid-3-" + idx}>
-                            <SmartImage
+                            <LazyImage
                                 src={el}
                                 alt={makeAlt(el, idx + firstPart.length + secondPart.length)}
-                                index={idx + firstPart.length + secondPart.length}
                             />
                         </motion.div>
                     ))}

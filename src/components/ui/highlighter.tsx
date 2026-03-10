@@ -79,10 +79,10 @@ export function Highlighter({
     resizeObserver.observe(document.body)
 
     return () => {
-      if (element) {
-        annotate(element, { type: action }).remove()
-        resizeObserver.disconnect()
-      }
+      resizeObserver.disconnect()
+      annotationRef.current?.hide()
+      annotationRef.current?.remove()
+      annotationRef.current = null
     }
   }, [
     shouldShow,

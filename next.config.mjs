@@ -2,11 +2,16 @@
 const nextConfig = {
   output: 'standalone',
 
+  experimental: {
+    webpackMemoryOptimizations: true,
+  },
+
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "**" },
+      { protocol: "https", hostname: "drive.google.com" },
+      { protocol: "https", hostname: "lh3.googleusercontent.com" },
     ],
-    unoptimized: true,
+    formats: ["image/avif", "image/webp"],
   },
 };
 

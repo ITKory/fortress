@@ -1,24 +1,13 @@
 "use client"
 
 import { Button } from "@/src/components/ui/button"
-import React, { useState, useEffect } from "react"
+import React, { useState } from "react"
 import HandDrawnArrow from "./hand-drawn-arrow"
 import Link from "next/link"
 import Image from "next/image"
 
 export default function Hero() {
     const [isHovered, setIsHovered] = useState(false)
-    const [scrollY, setScrollY] = useState(0)
-
-    useEffect(() => {
-        const handleScroll = () => {
-            setScrollY(window.scrollY)
-        }
-        window.addEventListener("scroll", handleScroll)
-        return () => window.removeEventListener("scroll", handleScroll)
-    }, [])
-
-     const logoTranslate = `translateY(${scrollY * 0.2}px)`
 
     return (
         <section className="relative min-h-[120vh] flex items-start md:items-center justify-center px-4 pt-28 pb-24 overflow-visible  bg-gradient-to-b from-card/90 to-card/10">
@@ -28,7 +17,6 @@ export default function Hero() {
 
             <div
                 className="max-w-6xl w-full mx-auto text-center relative z-10"
-                style={{ transform: logoTranslate }}
             >
                  <div className="mx-auto">
                     <Image
@@ -36,6 +24,8 @@ export default function Hero() {
                         alt="Логотип ресторана «Башня»"
                         width={1600}
                         height={1600}
+                        sizes="(max-width: 640px) 288px, (max-width: 768px) 384px, (max-width: 1024px) 448px, 512px"
+                        quality={70}
                         className="mx-auto w-72 sm:w-96 md:w-[28rem] lg:w-[32rem] h-auto animate-float"
                         priority={false}
                     />

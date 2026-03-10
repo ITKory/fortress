@@ -23,10 +23,11 @@ export default function Menu(): JSX.Element {
     useEffect(() => {
         if (!isOpen) return;
 
+        const controller = new AbortController();
         setLoading(true);
         setError(null);
 
-        fetch("/api/menu")
+        fetch("/api/menu", { signal: controller.signal })
             .then(r => {
                 if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
                 return r.json();
@@ -40,10 +41,17 @@ export default function Menu(): JSX.Element {
                 setImageUrls(urls);
             })
             .catch((err) => {
+                if (err instanceof Error && err.name === "AbortError") return;
                 console.error("API error:", err);
                 setError("Не удалось загрузить меню — проверь sharing в Google Drive (каждый файл 'Anyone with the link')");
             })
-            .finally(() => setLoading(false));
+            .finally(() => {
+                if (!controller.signal.aborted) {
+                    setLoading(false);
+                }
+            });
+
+        return () => controller.abort();
     }, [isOpen]);
 
     const prefetch = () => fetch("/api/menu", { cache: "force-cache" }).catch(() => {});

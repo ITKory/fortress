@@ -20,6 +20,8 @@ export default function Home() {
                             src="/background.jpg"
                             alt="Фон: наши блюда"
                             fill
+                            sizes="100vw"
+                            quality={65}
                             className="object-cover object-center "
                             priority
                         />

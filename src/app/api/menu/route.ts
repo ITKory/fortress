@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 const FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID;
 const API_KEY = process.env.GOOGLE_DRIVE_API_KEY;
+const MAX_MENU_IMAGES = 18;
 
 export const revalidate = 7200;
 
@@ -27,7 +28,8 @@ export async function GET() {
         const images = data.files
             .filter((f: any) => /\.(jpe?g|png|webp|avif)$/i.test(f.name) && f.mimeType?.startsWith("image/"))
             .map((f: any) => `https://drive.google.com/thumbnail?id=${f.id}&sz=w1920`)
-            .sort();
+            .sort()
+            .slice(0, MAX_MENU_IMAGES);
 
         return NextResponse.json(images);
     } catch (err) {
