@@ -1,113 +1,99 @@
 "use client"
 
-import React, { useEffect, useRef, useState, useCallback } from "react"
+import React, { useEffect, useState } from "react"
 import { motion, useMotionValue, useSpring } from "motion/react"
 
 export function CustomCursor() {
-    const isCoarse = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(pointer: coarse)").matches
-    if (isCoarse) return null
-
     const cursorX = useMotionValue(-100)
     const cursorY = useMotionValue(-100)
 
-     const springConfig = { damping: 25, stiffness: 300 }
+    const springConfig = { damping: 25, stiffness: 300 }
     const cursorXSpring = useSpring(cursorX, springConfig)
     const cursorYSpring = useSpring(cursorY, springConfig)
 
-    const [tooltip, setTooltip] = useState<string>("")
+    const [enabled, setEnabled] = useState(false)
+    const [tooltip, setTooltip] = useState("")
     const [isInside, setIsInside] = useState(false)
-    const hideTimeoutRef = useRef<number | null>(null)
-
     useEffect(() => {
-        document.body.classList.add("has-custom-cursor")
-        return () => {
-            document.body.classList.remove("has-custom-cursor")
-            if (hideTimeoutRef.current) window.clearTimeout(hideTimeoutRef.current)
-        }
-    }, [])
-
-    const onMove = useCallback((e: MouseEvent) => {
-        if (typeof e.clientX !== "number" || typeof e.clientY !== "number") return
-
-        cursorX.set(e.clientX)
-        cursorY.set(e.clientY)
-
-        setIsInside(true)
-        if (hideTimeoutRef.current) {
-            window.clearTimeout(hideTimeoutRef.current)
-            hideTimeoutRef.current = null
-        }
-
-        const target = e.target as HTMLElement | null
-        const title =
-            target?.getAttribute?.("data-tooltip") ??
-            target?.closest?.("[data-tooltip]")?.getAttribute?.("data-tooltip") ??
-            ""
-        setTooltip(title || "")
-    }, [cursorX, cursorY])
-
-    const onLeave = useCallback(() => {
-        // плавно скрываем курсор (scale -> 0.3, opacity -> 0)
-        // но даём небольшой запас времени прежде чем окончательно считать спрятанным
-        // чтобы избежать дерганья при быстрых событиях
-        if (hideTimeoutRef.current) window.clearTimeout(hideTimeoutRef.current)
-        // ставим таймаут — после него isInside=false (анимация выполнится через animate props)
-        hideTimeoutRef.current = window.setTimeout(() => {
+        const media = window.matchMedia("(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)")
+        const syncPreference = () => {
+            setEnabled(media.matches)
             setIsInside(false)
-            hideTimeoutRef.current = null
-        }, 40) // небольшая задержка, можно уменьшить/увеличить
+            setTooltip("")
+        }
+        syncPreference()
+        media.addEventListener("change", syncPreference)
+        return () => media.removeEventListener("change", syncPreference)
     }, [])
 
     useEffect(() => {
-        // mouseleave срабатывает когда уходит за границы окна
-        window.addEventListener("mousemove", onMove)
-        window.addEventListener("mouseleave", onLeave)
-        // дополнительный перехват: mouseout когда relatedTarget === null (уход)
-        const onOut = (e: MouseEvent) => {
-            const rel = (e as any).relatedTarget
-            if (!rel) onLeave()
-        }
-        window.addEventListener("mouseout", onOut)
+        document.body.classList.toggle("has-custom-cursor", enabled && isInside)
+        return () => document.body.classList.remove("has-custom-cursor")
+    }, [enabled, isInside])
 
-        // скрываем курсор при потере фокуса/видимости страницы
-        const onBlurOrHidden = () => onLeave()
+    useEffect(() => {
+        if (!enabled) return
+
+        const onLeave = () => {
+            setIsInside(false)
+            setTooltip("")
+        }
+        const onMove = (event: PointerEvent) => {
+            if (event.pointerType !== "mouse") {
+                onLeave()
+                return
+            }
+
+            cursorX.set(event.clientX)
+            cursorY.set(event.clientY)
+            const target = event.target instanceof Element ? event.target : null
+            if (target?.closest("input, textarea, select, [contenteditable]:not([contenteditable='false'])")) {
+                onLeave()
+                return
+            }
+
+            setIsInside(true)
+            setTooltip(target?.closest("[data-tooltip]")?.getAttribute("data-tooltip") ?? "")
+        }
+        const onOut = (event: PointerEvent) => {
+            if (!event.relatedTarget) onLeave()
+        }
         const onVisibilityChange = () => {
             if (document.visibilityState !== "visible") onLeave()
         }
-        window.addEventListener("blur", onBlurOrHidden)
+
+        window.addEventListener("pointermove", onMove)
+        window.addEventListener("pointerout", onOut)
+        window.addEventListener("blur", onLeave)
         document.addEventListener("visibilitychange", onVisibilityChange)
 
         return () => {
-            window.removeEventListener("mousemove", onMove)
-            window.removeEventListener("mouseleave", onLeave)
-            window.removeEventListener("mouseout", onOut)
-            window.removeEventListener("blur", onBlurOrHidden)
+            window.removeEventListener("pointermove", onMove)
+            window.removeEventListener("pointerout", onOut)
+            window.removeEventListener("blur", onLeave)
             document.removeEventListener("visibilitychange", onVisibilityChange)
         }
-    }, [onMove, onLeave])
+    }, [enabled, cursorX, cursorY])
 
-    // Render always so we can animate hide/show smoothly.
-    // translate offsets center the cursor graphic (half of size).
+    if (!enabled) return null
+
     return (
         <>
-            {/* глобальный стиль: включается классом на body */}
             <style jsx global>{`
-        /* скрываем системный курсор при наличии класса; исключаем вводимые элементы */
+        .has-custom-cursor,
         .has-custom-cursor * {
           cursor: none !important;
         }
-        /* но оставим видимый курсор в интерактивных полях при фокусе */
-
       `}</style>
 
-            {/* Курсор (svg) */}
             <motion.div
+                aria-hidden="true"
                 className="fixed top-0 left-0 pointer-events-none z-[9999]"
                 style={{
                     x: cursorXSpring,
                     y: cursorYSpring,
                 }}
-                // анимация появления/скрытия: scale + opacity
+                initial={false}
                 animate={{
                     opacity: isInside ? 1 : 0,
                     scale: isInside ? 1 : 0.28,
@@ -127,9 +113,9 @@ export function CustomCursor() {
                 </div>
             </motion.div>
 
-            {/* Tooltip (идёт рядом с курсором) */}
             {tooltip && (
                 <motion.div
+                    aria-hidden="true"
                     className="fixed top-0 left-0 px-3 py-2 bg-card/95 backdrop-blur-sm border border-border rounded-lg text-xs text-foreground pointer-events-none z-[9999] whitespace-nowrap shadow-lg"
                     style={{
                         x: cursorXSpring,

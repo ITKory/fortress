@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import type React from "react"
-import { useInView } from "motion/react"
+import { useInView, useReducedMotion } from "motion/react"
 import { annotate } from "rough-notation"
 import { type RoughAnnotation } from "rough-notation/lib/model"
 
@@ -40,6 +40,7 @@ export function Highlighter({
 }: HighlighterProps) {
   const elementRef = useRef<HTMLSpanElement>(null)
   const annotationRef = useRef<RoughAnnotation | null>(null)
+  const reduceMotion = useReducedMotion()
 
   const isInView = useInView(elementRef, {
     once: true,
@@ -63,6 +64,7 @@ export function Highlighter({
       iterations,
       padding,
       multiline,
+      animate: !reduceMotion,
     }
 
     const annotation = annotate(element, annotationConfig)
@@ -93,10 +95,11 @@ export function Highlighter({
     iterations,
     padding,
     multiline,
+    reduceMotion,
   ])
 
   return (
-    <span ref={elementRef} className="relative inline-block bg-transparent">
+    <span ref={elementRef} className="relative inline bg-transparent">
       {children}
     </span>
   )

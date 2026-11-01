@@ -1,39 +1,58 @@
 // app/api/menu/route.ts
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 
 const FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID;
 const API_KEY = process.env.GOOGLE_DRIVE_API_KEY;
-const MAX_MENU_IMAGES = 18;
+const PAGE_SIZE = 10;
 
-export const revalidate = 7200;
+type DrivePage = {
+    files?: { id: string }[];
+    nextPageToken?: string;
+};
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+    if (!FOLDER_ID || !API_KEY) {
+        return NextResponse.json({ error: "Menu storage is not configured" }, { status: 500 });
+    }
+
     try {
-        const res = await fetch(
-            `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents&fields=files(id,name,mimeType)&key=${API_KEY}`
-        );
+        const images: string[] = [];
+        let pageToken = request.nextUrl.searchParams.get("pageToken");
+        const visitedTokens = new Set<string>();
 
-        if (!res.ok) {
-            const errorText = await res.text();
-            console.error("Google API error:", res.status, errorText);
-            return NextResponse.json({ error: `API error: ${res.status}` }, { status: res.status });
-        }
+        do {
+            if (pageToken) {
+                if (visitedTokens.has(pageToken)) throw new Error("Repeated menu page token");
+                visitedTokens.add(pageToken);
+            }
 
-        const data = await res.json();
+            const params = new URLSearchParams({
+                q: `'${FOLDER_ID}' in parents and trashed = false and mimeType contains 'image/'`,
+                fields: "nextPageToken,files(id)",
+                orderBy: "name_natural",
+                pageSize: String(PAGE_SIZE - images.length),
+                key: API_KEY,
+            });
+            if (pageToken) params.set("pageToken", pageToken);
 
-        if (!data.files || data.files.length === 0) {
-            return NextResponse.json([]);
-        }
+            const response = await fetch(`https://www.googleapis.com/drive/v3/files?${params}`, {
+                cache: "no-store",
+                signal: request.signal,
+            });
 
-        const images = data.files
-            .filter((f: any) => /\.(jpe?g|png|webp|avif)$/i.test(f.name) && f.mimeType?.startsWith("image/"))
-            .map((f: any) => `https://drive.google.com/thumbnail?id=${f.id}&sz=w1920`)
-            .sort()
-            .slice(0, MAX_MENU_IMAGES);
+            if (!response.ok) {
+                console.error("Google Drive menu request failed:", response.status);
+                return NextResponse.json({ error: "Unable to load menu images" }, { status: 502 });
+            }
 
-        return NextResponse.json(images);
-    } catch (err) {
-        console.error("Menu error:", err);
-        return NextResponse.json([], { status: 500 });
+            const data: DrivePage = await response.json();
+            images.push(...(data.files ?? []).map(file => `https://drive.google.com/thumbnail?id=${encodeURIComponent(file.id)}&sz=w1920`));
+            pageToken = data.nextPageToken || null;
+        } while (pageToken && images.length < PAGE_SIZE);
+
+        return NextResponse.json({ images, nextPageToken: pageToken });
+    } catch {
+        console.error("Menu images request failed");
+        return NextResponse.json({ error: "Unable to load menu images" }, { status: 500 });
     }
 }

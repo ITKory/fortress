@@ -1,7 +1,10 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import {useIsMobile} from "@/src/hooks/use-mobile";
+import { useReducedMotion } from "motion/react"
+import { Pause, Play } from "lucide-react"
+import { Button } from "@/src/components/ui/button"
+import { useIsMobile } from "@/src/hooks/use-mobile"
 
 const reviews = [
     {
@@ -91,117 +94,81 @@ const reviews = [
     }
 ]
 
-// Split reviews into 3 columns
-const column1 = reviews.slice(0, 3)
-const column2 = reviews.slice(3, 6)
-const column3 = reviews.slice(6, 9)
+const columns = [0, 1, 2].map(column => reviews.filter((_, index) => index % 3 === column))
 
 function ReviewCard({ name, text, rating }: { name: string; text: string; rating: number }) {
   return (
-    <div className="bg-background border border-border rounded-2xl p-6 mb-4 hover:shadow-lg transition-shadow duration-300">
-      <div className="flex gap-1 mb-3">
-        {Array.from({ length: rating }).map((_, i) => (
-          <svg key={i} className="w-4 h-4 fill-primary" viewBox="0 0 20 20">
+    <figure className="rounded-2xl border border-border bg-background p-5 shadow-sm sm:p-6">
+      <div className="mb-4 flex gap-1" role="img" aria-label={`Оценка: ${rating} из 5`}>
+        {Array.from({ length: rating }).map((_, index) => (
+          <svg key={index} className="size-4 fill-primary" viewBox="0 0 20 20" aria-hidden="true">
             <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
           </svg>
         ))}
       </div>
-      <p className="text-muted-foreground leading-relaxed mb-4 text-sm">{text}</p>
-      <p className="font-medium text-foreground">{name}</p>
-    </div>
+      <blockquote className="text-sm leading-relaxed text-muted-foreground">{text}</blockquote>
+      <figcaption className="mt-4 border-t border-border/60 pt-4 font-medium text-foreground">{name}</figcaption>
+    </figure>
   )
 }
 
-function ScrollingColumn({
-  reviews,
-  direction,
-}: {
-  reviews: typeof column1
+function ScrollingColumn({ items, direction, paused, label }: {
+  items: typeof reviews
   direction: "up" | "down"
+  paused: boolean
+  label: string
 }) {
   const columnRef = useRef<HTMLDivElement>(null)
-  const [isVisible, setIsVisible] = useState(true)
+  const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
     const column = columnRef.current
     if (!column) return
-
-    const observer = new IntersectionObserver(([entry]) => {
-      setIsVisible(entry.isIntersecting)
-    }, { threshold: 0.05 })
-
+    const observer = new IntersectionObserver(([entry]) => setIsVisible(entry.isIntersecting), { threshold: 0.05 })
     observer.observe(column)
     return () => observer.disconnect()
   }, [])
 
-  useEffect(() => {
-    const column = columnRef.current
-    if (!column || !isVisible) return
-
-    let animationId: number
-    let position = direction === "up" ? 0 : -column.scrollHeight / 2
-    let stopped = false
-
-    const animate = () => {
-      if (stopped || document.visibilityState !== "visible") return
-
-      if (direction === "up") {
-        position -= 0.5
-        if (position <= -column.scrollHeight / 2) {
-          position = 0
-        }
-      } else {
-        position += 0.5
-        if (position >= 0) {
-          position = -column.scrollHeight / 2
-        }
-      }
-      column.style.transform = `translateY(${position}px)`
-      animationId = requestAnimationFrame(animate)
-    }
-
-    animationId = requestAnimationFrame(animate)
-
-    return () => {
-      stopped = true
-      cancelAnimationFrame(animationId)
-    }
-  }, [direction, isVisible])
-
   return (
-    <div className="h-[600px] overflow-hidden relative">
-      <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-card to-transparent z-10" />
-      <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-card to-transparent z-10" />
-      <div ref={columnRef} className="will-change-transform">
-        {[...reviews, ...reviews].map((review, index) => (
-          <ReviewCard key={index} {...review} />
-        ))}
+    <div ref={columnRef} className="review-viewport relative h-[min(38rem,75svh)] overflow-hidden rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4" role="region" aria-label={label} aria-describedby="reviews-instructions" tabIndex={0}>
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-12 bg-gradient-to-b from-card to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-12 bg-gradient-to-t from-card to-transparent" />
+      <div className="review-track" style={{ animationDirection: direction === "down" ? "reverse" : "normal", animationPlayState: paused || !isVisible ? "paused" : "running" }}>
+        <div className="space-y-4 pb-4">
+          {items.map(review => <ReviewCard key={review.name} {...review} />)}
+        </div>
+        <div className="review-copy space-y-4 pb-4" aria-hidden="true">
+          {items.map(review => <ReviewCard key={review.name} {...review} />)}
+        </div>
       </div>
     </div>
   )
 }
 
 export default function Reviews() {
-    const IsMobile = useIsMobile();
+  const isMobile = useIsMobile()
+  const reduceMotion = useReducedMotion()
+  const [isPaused, setIsPaused] = useState(false)
 
   return (
-    <section id="reviews" className="py-24 px-4 bg-card border-b border-border">
-      <div className="max-w-7xl mx-auto">
-        <h2 className="font-serif text-4xl md:text-6xl font-light text-center mb-16 text-balance">
-          Отзывы наших гостей
-        </h2>
-        <div className="grid md:grid-cols-3 gap-6">
-            {!IsMobile && (
-                <>
-                <ScrollingColumn reviews={column1} direction="up" />
-                <ScrollingColumn reviews={column2} direction="down" />
-                 <ScrollingColumn reviews={column3} direction="up" />
-                </>
-            )}
-            {IsMobile && (
-                <ScrollingColumn reviews={reviews} direction="up" />
-            )}
-
+    <section id="reviews" aria-labelledby="reviews-title" className="section-space border-b border-border bg-card">
+      <div className="section-shell">
+        <div className="mb-8 text-center md:mb-12">
+          <h2 id="reviews-title" className="reveal-on-scroll font-serif text-4xl font-light text-balance md:text-6xl">Отзывы наших гостей</h2>
+          <p id="reviews-instructions" className="sr-only">При наведении отзывы останавливаются. Для чтения с клавиатуры перейдите в колонку отзывов клавишей Tab и прокручивайте её стрелками вверх и вниз.</p>
+          {!reduceMotion && (
+            <Button variant="outline" className="mt-6 rounded-full px-5" onClick={() => setIsPaused(paused => !paused)} aria-pressed={isPaused}>
+              {isPaused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
+              {isPaused ? "Продолжить движение" : "Приостановить отзывы"}
+            </Button>
+          )}
+        </div>
+        <div className="grid gap-6 md:grid-cols-3">
+          {isMobile ? (
+            <ScrollingColumn items={reviews} direction="up" paused={isPaused} label="Отзывы гостей" />
+          ) : columns.map((items, index) => (
+            <ScrollingColumn key={index} items={items} direction={index === 1 ? "down" : "up"} paused={isPaused} label={`Отзывы гостей, колонка ${index + 1}`} />
+          ))}
         </div>
       </div>
     </section>

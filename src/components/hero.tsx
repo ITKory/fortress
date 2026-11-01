@@ -5,63 +5,79 @@ import React, { useState } from "react"
 import HandDrawnArrow from "./hand-drawn-arrow"
 import Link from "next/link"
 import Image from "next/image"
+import { BadgeCheck, Flame, MapPin, UtensilsCrossed } from "lucide-react"
+import { useMenu } from "@/src/components/menu-provider"
 
 export default function Hero() {
     const [isHovered, setIsHovered] = useState(false)
+    const { isOpen, openMenu } = useMenu()
 
     return (
-        <section className="relative min-h-[120vh] flex items-start md:items-center justify-center px-4 pt-28 pb-24 overflow-visible  bg-gradient-to-b from-card/90 to-card/10">
-            <div className="absolute inset-0 flex justify-center items-start md:items-center pointer-events-none">
-                <div className="w-[60%] h-[40%] md:w-[45%] md:h-[40%] rounded-full bg-[radial-gradient(circle_at_center,rgba(255,214,150,0.08)_0%,transparent_70%)]" />
+        <section aria-labelledby="hero-title" className="relative flex min-h-svh items-center justify-center overflow-visible bg-gradient-to-b from-card/90 to-card/10 pt-28 pb-28 sm:pt-32">
+            <h1 id="hero-title" className="sr-only">Рестораны «Башня» — вайнахская кухня в Москве</h1>
+            <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+                <div className="absolute left-1/2 top-16 size-[min(85vw,42rem)] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
+                <div className="absolute inset-x-8 bottom-12 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent sm:inset-x-16" />
             </div>
 
             <div
-                className="max-w-6xl w-full mx-auto text-center relative z-10"
+                className="section-shell relative z-10 text-center"
             >
-                 <div className="mx-auto">
+                <div className="hero-reveal mb-6 flex items-center justify-center gap-3 text-sm text-muted-foreground"/>
+
+                <div className="hero-reveal relative isolate mx-auto w-fit max-w-full" style={{ animationDelay: "80ms" }}>
+                    <div className="pointer-events-none absolute -inset-x-3 inset-y-0 -z-10 rounded-t-full rounded-b-3xl border border-primary/15 bg-gradient-to-b from-background/40 to-transparent sm:-inset-x-6" aria-hidden="true" />
+                    <div className="pointer-events-none absolute inset-x-0 inset-y-3 -z-10 rounded-t-full rounded-b-2xl border border-primary/10 sm:-inset-x-3" aria-hidden="true" />
                     <Image
                         src="/logo-black.svg"
                         alt="Логотип ресторана «Башня»"
                         width={1600}
                         height={1600}
-                        sizes="(max-width: 640px) 288px, (max-width: 768px) 384px, (max-width: 1024px) 448px, 512px"
+                        sizes="(max-width: 640px) 256px, (max-width: 768px) 320px, (max-width: 1024px) 384px, 448px"
                         quality={70}
-                        className="mx-auto w-72 sm:w-96 md:w-[28rem] lg:w-[32rem] h-auto animate-float"
-                        priority={false}
+                        className="mx-auto h-auto w-64 max-w-full sm:w-80 md:w-96 lg:w-[28rem]"
+                        priority
                     />
                 </div>
 
 
-                <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 px-4 md:px-0">
+                <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3 lg:gap-6">
                     {[
-                        { title: 'Национальные блюда', desc: 'Жижиг- галнаш. Чапильг с разными начинками — от классики до авторских.' },
-                        { title: 'Мангал', desc: 'Большой выбор мяса, приготовленного на мангале.' },
-                        { title: 'Сертифицировано халяль', desc: 'Все блюда соответствуют требованиям халяль.' },
-                    ].map((item, i) => (
+                        { title: 'Национальные блюда', desc: 'Жижиг-галнаш. Чапильг с разными начинками — от классики до авторских.', icon: UtensilsCrossed },
+                        { title: 'Мангал', desc: 'Большой выбор мяса, приготовленного на мангале.', icon: Flame },
+                        { title: 'Сертифицировано халяль', desc: 'Все блюда соответствуют требованиям халяль.', icon: BadgeCheck },
+                    ].map(({ title, desc, icon: Icon }, index) => (
                         <div
-                            key={item.title}
-                            className={`bg-card/60 backdrop-blur-sm rounded-2xl border-1 p-6 text-left transform transition-transform duration-400 hover:-translate-y-2 animate-reveal`}
-                            style={{ animationDelay: `${200 + i * 120}ms` }}
+                            key={title}
+                            className="hero-reveal glass-panel ambient-card group p-5 text-left transition-[transform,border-color,box-shadow] duration-300 hover:border-primary/30 hover:shadow-lg motion-safe:hover:-translate-y-1 sm:p-6"
+                            style={{ animationDelay: `${180 + index * 100}ms` }}
                         >
                             <div className="flex items-center gap-3">
-                                <div>
-                                    <h4 className="font-medium">{item.title}</h4>
-                                    <p className="text-sm text-muted-foreground mt-1">{item.desc}</p>
-                                </div>
+                                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-primary/15 bg-primary/5 text-primary transition-colors duration-300 group-hover:bg-primary/10" aria-hidden="true">
+                                    <Icon className="size-5" strokeWidth={1.5} />
+                                </span>
+                                <h2 className="font-medium">{title}</h2>
                             </div>
+                            <p className="mt-3 text-sm text-muted-foreground">{desc}</p>
                         </div>
                     ))}
                 </div>
 
-                <div className="mt-8">
-                    <div className="relative inline-block">
+                <div className="hero-reveal relative mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4" style={{ animationDelay: "480ms" }}>
+                    <div className="inline-block">
                         <Button
+                            type="button"
+                            aria-haspopup="dialog"
+                            aria-expanded={isOpen}
+                            onClick={event => openMenu(event.currentTarget)}
                             size="lg"
-                            className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-6 text-lg rounded-xl transition-all duration-300"
+                            className="ambient-card bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-6 text-lg rounded-xl transition-all duration-300"
                             onMouseEnter={() => setIsHovered(true)}
                             onMouseLeave={() => setIsHovered(false)}
+                            onFocus={() => setIsHovered(true)}
+                            onBlur={() => setIsHovered(false)}
                         >
-                            <Link href="#menu">Наши блюда</Link>
+                            Наши блюда
                         </Button>
 
                         {isHovered && (
@@ -70,43 +86,49 @@ export default function Hero() {
                                 aria-hidden="true"
                             >
                                 <div className="flex items-end justify-center -space-x-10 pointer-events-none" aria-hidden="true">
-                                    <div className="relative z-10 transform translate-y-3 scale-95 animate-bob">
+                                    <div className="hero-arrow-bob relative z-10 transform translate-y-3 scale-95">
                                         <HandDrawnArrow rotation={-90} />
                                     </div>
 
-                                    <div className="relative z-20 transform scale-125 animate-bob" style={{ animationDelay: '60ms' }}>
+                                    <div className="hero-arrow-bob relative z-20 transform scale-125" style={{ animationDelay: '60ms' }}>
                                         <HandDrawnArrow rotation={-90} />
                                     </div>
 
-                                    <div className="relative z-0 transform translate-y-3 animate-bob" style={{ animationDelay: '120ms' }}>
+                                    <div className="hero-arrow-bob relative z-0 transform translate-y-3" style={{ animationDelay: '120ms' }}>
                                         <HandDrawnArrow rotation={-90} />
                                     </div>
                                 </div>
                             </div>
                         )}
                     </div>
+                    <Button asChild size="lg" variant="outline" className="rounded-xl px-6 py-6">
+                        <Link href="#locations">
+                            <MapPin className="size-4" aria-hidden="true" />
+                            Найти ресторан
+                        </Link>
+                    </Button>
                 </div>
 
-                <div className="h-24 md:h-40" />
             </div>
 
              <style jsx>{`
-                @keyframes float {
-                    0% { transform: translateY(0px); }
-                    50% { transform: translateY(-6px); }
-                    100% { transform: translateY(0px); }
-                }
-                
-
-                @keyframes reveal {
+                @keyframes hero-reveal {
                     0% { opacity: 0; transform: translateY(8px); }
                     100% { opacity: 1; transform: translateY(0); }
                 }
 
-                @keyframes bob {
-                    0% { transform: translateY(0); }
-                    50% { transform: translateY(-4px) rotate(-2deg); }
-                    100% { transform: translateY(0); }
+                @keyframes hero-bob {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-4px); }
+                }
+
+                @media (prefers-reduced-motion: no-preference) {
+                    .hero-reveal {
+                        animation: hero-reveal 600ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+                    }
+                    .hero-arrow-bob {
+                        animation: hero-bob 2.6s ease-in-out infinite;
+                    }
                 }
             `}</style>
         </section>

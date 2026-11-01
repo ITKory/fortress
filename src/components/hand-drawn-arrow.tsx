@@ -8,6 +8,7 @@ interface HandDrawnArrowProps {
 export function HandDrawnArrow({ rotation = 0, className = "" }: HandDrawnArrowProps) {
   return (
     <svg
+      aria-hidden="true"
       width="80"
       height="40"
       viewBox="0 0 80 40"

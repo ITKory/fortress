@@ -132,7 +132,10 @@ export default function RootLayout({
             <title>Сеть Ресторанов | Башня</title>
         </head>
 
-        <body className="font-sans scroll-smooth">
+        <body className="font-sans">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-xl focus:bg-card focus:px-5 focus:py-3 focus:text-primary focus:shadow-lg">
+            Перейти к содержимому
+        </a>
         <Suspense fallback={null}>
             <ClientLayout>{children}</ClientLayout>
         </Suspense>

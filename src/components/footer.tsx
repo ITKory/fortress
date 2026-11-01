@@ -5,93 +5,13 @@ import Link from "next/link"
 import Image from "next/image"
 import { Tooltip } from 'react-tooltip'
 
-type FooterLocation = {
-  name: string
-  address: string
-  phone?: string
-  placeholder?: string
-  metro?: string
-}
+import LocationCard from "@/src/components/location-card"
+import { Button } from "@/src/components/ui/button"
+import { locations } from "@/src/lib/locations"
+import { cn } from "@/src/lib/utils"
 
 export default function Footer() {
   const [isExpanded, setIsExpanded] = useState(false)
-
-  const locations: FooterLocation[] = [
-    {
-      name: "Башня на Набережной",
-      address: "Пресненская набережная, д. 10",
-      phone: "+7 (905) 977‑57‑00",
-      metro: "Деловой центр (Москва-Сити)"
-    },
-    {
-      name: "ТЦ BOTANICA",
-      address: "ул. Вильгельма Пика, д. 11",
-      phone: "+7 (905) 977‑57‑00",
-      metro: "Ботанический сад"
-    },
-    {
-      name: "ТЦ Аркадия",
-      address: "Б. Овчинниковский пер., д. 16",
-      phone: "+7 (903) 538‑31‑91",
-      placeholder: "Франшиза",
-      metro: "Новокузнецкая"
-    },
-    {
-      name: "Фудмолл BAZAAR",
-      address: "м-9 Балтия, 26‑й км., д. 7А, МО, г. Красногорск",
-      phone: "+7 (936) 277-57‑00"
-    },
-    {
-      name: "ШАУРМА",
-      address: "ул. Никольская, д. 25",
-      phone: "+7 (905) 977‑57‑00",
-      metro: "Лубянка"
-    },
-    {
-      name: "ШАУРМА И ЧУРРОС",
-      address: "ул. Большая Дмитровка, д. 7/5, стр. 1",
-      phone: "+7 (905) 977‑57‑00"
-    },
-    {
-      name: "ЮГ",
-      address: "ул. Краснопресненская набережная, д. 14",
-      placeholder: "Национальный центр РОССИЯ",
-      metro: "Деловой центр"
-    },
-  ]
-
-  const renderLocation = (loc: FooterLocation, index: number) => (
-      <div key={index} className="bg-card/55 backdrop-blur-xs border border-border/60 rounded-3xl p-6 shadow-2xl">
-        <div className="font-serif text-xl font-medium text-foreground">
-          {loc.name}
-        </div>
-
-        {loc.placeholder && (
-            <div className="text-sm font-medium text-primary/90 mt-1">
-              {loc.placeholder}
-            </div>
-        )}
-
-        {loc.metro && (
-            <div className="text-sm text-foreground/80 mt-2 leading-relaxed">
-              Метро: {loc.metro}
-            </div>
-        )}
-
-        <div className="text-sm text-foreground/80 mt-1 leading-relaxed">
-          {loc.address}
-        </div>
-
-        {loc.phone && (
-            <a
-                href={`tel:${loc.phone.replaceAll(/[^+\d]/g, "")}`}
-                className="text-primary hover:underline font-medium text-sm mt-3 inline-block"
-            >
-              {loc.phone}
-            </a>
-        )}
-      </div>
-  )
 
   return (
       <footer className="relative overflow-hidden">
@@ -108,57 +28,50 @@ export default function Footer() {
           <div className="absolute inset-0 bg-black/20"/>
         </div>
 
-        <div className="relative py-16 px-4 text-white">
-          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
-            <div className="bg-card/55 backdrop-blur-xs border border-border/60 rounded-3xl p-7 shadow-2xl">
-              <div className="flex items-start gap-5">
-                <div className="flex-shrink-0 w-20 h-20 md:w-24 md:h-24 flex items-center justify-center">
+        <div className="section-shell section-space relative">
+          <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-3">
+            <div className="glass-panel p-5 sm:p-6">
+              <div className="flex items-center gap-4">
+                <div className="flex size-16 shrink-0 items-center justify-center sm:size-20">
                   <Image
                       src="/logo-black-fortress.svg"
                       alt="Башня"
                       width={96}
                       height={96}
-                      sizes="(max-width: 768px) 256px, 320px"
-                      className="w-64 h-64 md:w-80 md:h-80 object-contain mt-12"
+                      sizes="(max-width: 640px) 64px, 80px"
+                      className="size-full object-contain"
                       priority={false}
                   />
                 </div>
 
-                <div className="flex-1">
-                  <div className="font-serif text-3xl md:text-4xl font-bold text-foreground leading-tight">
+                <div className="min-w-0 flex-1">
+                  <div className="font-serif text-3xl font-bold leading-tight text-foreground md:text-4xl">
                     Башня
                   </div>
-                  <div className="text-base font-medium text-foreground/90 mt-1">
+                  <div className="mt-1 text-base font-medium text-foreground/90">
                     Вайнахская кухня · Халяль
                   </div>
                 </div>
               </div>
 
-              <p className="text-sm leading-relaxed text-foreground/90 max-w-xs mt-6">
+              <p className="mt-6 max-w-prose text-sm leading-relaxed text-foreground/90">
                 Вкусные авторские блюда вайнахской кухни — быстро, с любовью и по халяль-стандартам.
               </p>
 
               <div className="flex flex-wrap items-center gap-4 mt-7">
-                <Link
-                    href="#menu"
-                    className="px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-medium shadow-lg transition"
-                >
-                  Меню
-                </Link>
-                <Link href="#about" className="text-foreground/90 hover:text-foreground font-medium transition">
-                  О нас
-                </Link>
+                <Button asChild className="text-base"><Link href="#menu">Меню</Link></Button>
+                <Button asChild variant="ghost" className="text-base text-foreground/90 hover:text-foreground"><Link href="#about">О нас</Link></Button>
               </div>
 
-              <div className="mt-9 pt-7 border-t border-border/30">
-                <h4 className="font-serif text-lg font-bold text-foreground mb-4">Мы в соцсетях</h4>
+              <div className="mt-8 border-t border-border pt-6">
+                <h2 className="mb-3 font-serif text-lg font-bold text-foreground">Мы в соцсетях</h2>
                 <a
                     href="https://www.instagram.com/bashnya_rest"
                     target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-3 text-foreground hover:text-primary transition font-medium text-lg"
+                    rel="noopener noreferrer"
+                    className="inline-flex min-h-11 items-center gap-3 rounded-lg text-lg font-medium text-foreground transition-colors hover:text-primary"
                 >
-                  <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg aria-hidden="true" className="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <rect x="3" y="3" width="18" height="18" rx="5"/>
                     <circle cx="12" cy="12" r="4"/>
                     <circle cx="17" cy="7" r="1.5"/>
@@ -168,31 +81,28 @@ export default function Footer() {
               </div>
             </div>
 
-            <div className="md:col-span-2 space-y-7">
-              <div className="bg-card/55 backdrop-blur-xs border border-border/60 rounded-3xl p-6 shadow-2xl">
-                <h2 className="font-serif text-2xl md:text-3xl font-bold text-foreground text-center md:text-left">
+            <div className="space-y-5 lg:col-span-2">
+              <div className="glass-panel p-5 sm:p-6">
+                <h2 className="font-serif text-2xl font-bold text-foreground text-center md:text-3xl md:text-left">
                   Наши локации
                 </h2>
               </div>
 
-              <div className="grid gap-5 md:grid-cols-2 md:gap-x-8">
-                {(isExpanded ? locations : locations.slice(0, 2)).map((loc, i) => (
-                    <div key={`mobile-${i}`} className="md:hidden">
-                      {renderLocation(loc, i)}
-                    </div>
-                ))}
-
-                {locations.map((loc, i) => (
-                    <div key={`desktop-${i}`} className="hidden md:block">
-                      {renderLocation(loc, i)}
+              <div id="footer-locations" className="grid gap-5 md:grid-cols-2">
+                {locations.map((location, index) => (
+                    <div key={location.id} className={cn(index > 1 && !isExpanded && "hidden md:block")}>
+                      <LocationCard location={location} compact />
                     </div>
                 ))}
               </div>
 
               <div className="md:hidden text-center mt-8">
                 <button
+                    type="button"
                     onClick={() => setIsExpanded(v => !v)}
-                    className="px-8 py-4 bg-card/55 backdrop-blur-xs border border-border/60 rounded-3xl shadow-2xl text-primary font-medium hover:bg-card/65 transition"
+                    aria-expanded={isExpanded}
+                    aria-controls="footer-locations"
+                    className="glass-panel min-h-12 px-6 py-3 font-medium text-primary transition-colors hover:bg-card"
                 >
                   {isExpanded ? "Скрыть" : "Показать все локации"}
                 </button>
@@ -200,24 +110,28 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="max-w-6xl mx-auto mt-16 pt-8 text-center">
-            <div className="inline-block bg-card/55 backdrop-blur-xs border border-border/60 rounded-full px-10 py-5 shadow-2xl">
+          <div className="mt-12 text-center">
+            <div className="glass-panel inline-block px-5 py-3 sm:px-8">
               <span className="text-sm font-medium text-foreground">
                 © 2025 «Башня». Все права защищены.{" "}
 
-                <span
+                <button
+                    type="button"
                     data-tooltip-id="legal-tooltip"
-                    className="underline underline-offset-2 decoration-dashed cursor-help hover:text-primary transition"
+                    className="inline-flex min-h-11 items-center rounded-md px-1 underline decoration-dashed underline-offset-2 transition-colors hover:text-primary"
                 >
                   Юридическая информация
-                </span>
+                </button>
               </span>
 
               <Tooltip
                   id="legal-tooltip"
                   place="top"
                   clickable={true}
-                  className="!bg-black/90 !text-white !text-xs !rounded-lg !px-5 !py-4 !shadow-2xl !backdrop-blur-sm !border !border-white/10 arrow"
+                  openEvents={{ mouseenter: true, focus: true, click: true }}
+                  closeEvents={{ mouseleave: true, blur: true }}
+                  globalCloseEvents={{ escape: true, clickOutsideAnchor: true }}
+                  className="!bg-black/90 !text-white !text-xs !rounded-xl !px-5 !py-4 !shadow-xl !backdrop-blur-sm !border !border-white/10 arrow"
                   style={{ maxWidth: "280px" }}
                   render={() => (
                       <div className="text-left leading-relaxed">
