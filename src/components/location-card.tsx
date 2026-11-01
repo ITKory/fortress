@@ -56,8 +56,8 @@ export default function LocationCard({ location, compact = false }: Readonly<{ l
   }
 
   return (
-    <article className="location-card relative flex w-full min-w-0 flex-col overflow-hidden rounded-3xl border border-border/50 bg-card/50 shadow-lg shadow-foreground/5 md:grid md:min-h-[76vh] md:items-end md:shadow-2xl lg:min-h-[84vh]">
-      <div className="relative h-[clamp(15rem,65vw,24rem)] shrink-0 md:absolute md:inset-0 md:h-auto">
+    <article className="location-card relative flex w-full min-w-0 flex-col overflow-hidden rounded-3xl border border-border/50 bg-card/50 shadow-lg shadow-foreground/5 md:shadow-2xl">
+      <div className="relative h-[clamp(15rem,65vw,24rem)] shrink-0 md:h-[clamp(18rem,34vw,32rem)] md:overflow-hidden md:bg-muted/50">
         {imageFailed ? (
           <div className="absolute inset-0 flex items-center justify-center bg-muted text-primary/60">
             <Utensils className="size-12" aria-hidden="true" />
@@ -76,22 +76,22 @@ export default function LocationCard({ location, compact = false }: Readonly<{ l
         )}
       </div>
 
-      <div className="glass-panel relative -mt-5 flex-1 border-x-0 border-b-0 p-4 text-foreground md:m-6 md:flex-none md:border md:p-5">
+      <div className="glass-panel relative -mt-5 flex-1 border-x-0 border-b-0 p-4 text-foreground md:mt-0 md:rounded-none md:bg-card/95 md:p-5 xl:p-6">
         <div className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-3 md:gap-x-4">
-          <div className="rounded-xl border border-primary/20 bg-primary/10 p-2.5 md:row-span-3 md:p-3">
+          <div className="rounded-xl border border-primary/20 bg-primary/10 p-2.5 md:p-3">
             <LocationIcon format={location.format} />
           </div>
           <div className="min-w-0 self-center">
             <h3 className="font-serif text-xl font-medium leading-tight text-balance md:text-3xl">{location.name}</h3>
             {location.franchise && <p className="mt-1 text-xs font-medium text-primary">Франшиза</p>}
           </div>
-          <address className="col-span-2 mt-3 text-sm not-italic leading-relaxed text-foreground/80 md:col-span-1 md:col-start-2 md:mt-2 md:text-base">
+          <address className="col-span-2 mt-3 text-sm not-italic leading-relaxed text-foreground/80 md:text-base">
             {location.address}
             {location.metro && <span className="mt-1 block">Метро: {location.metro}</span>}
             {location.note && <span className="mt-1 block">{location.note}</span>}
           </address>
 
-          <div className="col-span-2 mt-4 border-t border-primary/15 pt-3 md:col-span-1 md:col-start-2 md:pt-4">
+          <div className="col-span-2 mt-4 border-t border-primary/15 pt-3">
             {location.hours && (
               <p className="mb-3 flex items-start gap-2 text-xs font-medium text-foreground/80 md:text-sm">
                 <Clock className="mt-0.5 size-3.5 shrink-0 md:size-4" aria-hidden="true" />

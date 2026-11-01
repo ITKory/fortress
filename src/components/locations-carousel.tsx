@@ -96,7 +96,7 @@ export default function LocationsCarousel() {
         </div>
       </div>
 
-      <div className="mt-6 flex items-center justify-center gap-2 px-4 md:mt-12 md:gap-8">
+      <div className="mt-6 flex items-center justify-center gap-2 px-2 sm:px-4 md:mt-12 md:gap-8">
         <div className="relative">
           <Button
               type="button"

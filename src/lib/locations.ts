@@ -13,6 +13,16 @@ export type Location = {
 
 export const locations: Location[] = [
   {
+    id: "bashnya-naberezhnaya",
+    name: "Башня на Набережной",
+    address: "г. Москва, Пресненская набережная, д. 10",
+    metro: "Деловой центр (Москва-Сити)",
+    image: "/locations/1.jpg",
+    phone: "+7 (905) 977-57-00",
+    hours: "Пн–Сб: 10:00–22:00 • Вс: 12:00–18:00",
+    format: "Ресторан",
+  },
+  {
     id: "presnenskaya",
     name: "Мясная тема",
     address: "г. Москва, Пресненская набережная, д. 10",
@@ -74,7 +84,7 @@ export const locations: Location[] = [
     id: "dmitrovka",
     name: "ШАУРМА И ЧУРРОС",
     address: "г. Москва, ул. Большая Дмитровка, д. 7/5, стр. 1",
-    note: "Центр — рядом с театральным кварталом",
+    metro: "Охотный ряд",
     image: "/locations/10.png",
     phone: "+7 (905) 977-57-00",
     hours: "Круглосуточно",
