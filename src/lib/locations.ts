@@ -19,7 +19,7 @@ export const locations: Location[] = [
     metro: "Деловой центр (Москва-Сити)",
     image: "/locations/1.jpg",
     phone: "+7 (905) 977-57-00",
-    hours: "Пн–Сб: 10:00–22:00 • Вс: 12:00–18:00",
+    hours: "Пн–Сб: 10:00–22:00 • Вс: Выходной",
     format: "Ресторан",
   },
   {
